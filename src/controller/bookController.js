@@ -70,20 +70,31 @@ const getbooks = async (req, res) => {
 const getBOOksBYQuery=async function(req,res){
     try{
     let data=req.query
-    // const {userId,category,subCategory}=data
-    if(!data){
+    
+    if(Object.keys(data).length==0){
         let Allbooksdata=await bookModel.find({isDeleted:false}).select({ISBN:0,subcategory:0,deletedAt:0,isDeleted:0,createdAt:0,updatedAt:0}).sort({title:1})
         return res.status(200).send({status:true,data:Allbooksdata})
     }
-    if (!isValidObjectId(userId)) {
-        return res.status(400).send({status :false , msg: "Enter A Valid userid" })
+    else{
+    if(data.userId){
+        if(!isValidObjectId(data.userId)) {
+            return res.status(400).send({status :false , msg: "Enter A Valid userid" })
+        }
+
     }
-
-    let book=await bookModel.find({isDeleted:false,...query}).select({ISBN:0,subcategory:0,deletedAt:0,isDeleted:0,createdAt:0,updatedAt:0}).sort({title:1})
+    
+    let book=await bookModel.find({isDeleted:false,...data}).select({ISBN:0,deletedAt:0,isDeleted:0,createdAt:0,updatedAt:0}).sort({title:1})
     if(book.length==0) return res.status(404).send({status:false,msg:"books are not found"})
-
+    const userIdofToken=req.decodedToken.userId
+    
+    const  userId=book[0].userId
+    console.log(userId)
+    console.log(userIdofToken)
+    if(userIdofToken.toString()!=userId.toString()) {
+        return res.status(403).send({status:false,msg:"you are not authorized"})
+    }
     return res.status(200).send({status:true,data:book})
-
+    }
     }catch (err) {
     res.status(500).send({ status: false, msg: err.message });
     }

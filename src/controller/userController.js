@@ -1,5 +1,6 @@
 const userModel = require("../models/user");
 const validator = require("validator");
+const jwt = require("jsonwebtoken")
 
 let createUser = async (req, res) => {
     try{
@@ -61,4 +62,38 @@ res.status(201).send({ status: true, data: user });
 }
 
 
-module.exports = { createUser };
+const loginuser= async function(req,res){
+
+    try{
+        let data= req.body
+    let{email,password}=data
+    if (Object.keys(data).length == 0)
+    return res.status(400).send({ status: false, msg: "please provide fields" });
+
+    if (!email)
+    return res.status(400).send({ status: false, msg: "please provide email" });
+
+    if (!password) 
+    return res.status(400).send({ status: false, msg: "please provide password" });
+
+    if (!validator.isEmail(email))
+    return res.status(400).send({ status: false, msg: "please provide valid email" });
+
+    
+    let userdata= await userModel.findOne({email:email,password:password})
+    if(!userdata) return res.status(401).send({status:false,msg:"invalid login"})
+    let token = jwt.sign({userId:userdata._id.toString(),emailId:userdata.email},"group4californium")
+    res.setHeader("x-api-key",token)
+    res.status(200).send({status:true,msg:"Token is generated",data:token})
+    }catch(error){
+       res.status(500).send({status:false,error:error.message})
+}
+}
+
+
+
+
+
+
+
+module.exports = { createUser,loginuser };

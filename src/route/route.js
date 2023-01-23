@@ -1,8 +1,6 @@
-const express=require('express')
-const router=express.Router()
+const express = require("express");
+const router = express.Router();
 
-router.post("register/")
+router.post("register/");
 
-
-
-module.exports=router
+module.exports = router;

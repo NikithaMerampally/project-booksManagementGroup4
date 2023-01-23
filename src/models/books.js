@@ -1,16 +1,16 @@
 const mongoose=require('mongoose')
 const bookSchema=new mongoose.Schema({
-    title: { type:string, required:true, unique:true },
-    excerpt: { type:string, required:true },
+    title: { type:String, required:true, unique:true },
+    excerpt: { type:String, required:true },
     userId: {type: mongoose.Schema.Types.ObjectId, required:true, ref:"user" },
-    ISBN: { type:string, required:true , unique },
-    category: { type:string, required:true  },
-    subcategory: { type:string, required:true  },
+    ISBN: { type:String, required:true , unique:true },
+    category: { type:String, required:true  },
+    subcategory: { type:String, required:true  },
     reviews:
         { type:Number, default: 0 },
     deletedAt: { type:Date },
     isDeleted: {type: Boolean, default: false },
-    releasedAt: { type:Date, required:true  }
+    releasedAt: { type:Date,default:Date.now(), required:true  }
     
     
 

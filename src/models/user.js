@@ -1,15 +1,15 @@
 const mongoose=require('mongoose')
 const userSchema=new mongoose.Schema({
-    title: {type:string, required:true, enum:[Mr, Mrs, Miss]},
+    title: {type:String, required:true, enum:["Mr", "Mrs", "Miss"]},
 
-    name: {type:string, required:true},
-    phone: {type:string, required:true, unique:true},
-    email: {type:string, required:true,  unique:true},
-    password: {type:string, required:true},
+    name: {type:String, required:true},
+    phone: {type:String, required:true, unique:true},
+    email: {type:String, required:true,  unique:true},
+    password: {type:String, required:true},
     address: {
-      street: {type:string,},
-      city: {type:string,},
-      pincode: {type:string,}
+      street: {type:String,},
+      city: {type:String,},
+      pincode: {type:String,}
     }
 
 },{timestamps:true})

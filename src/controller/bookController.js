@@ -6,24 +6,25 @@ const createBooks=async (req,res)=>{
     try{
 
     let data=req.body
+
     if(!data.title) return res.status(400).json({status:false,msg:"please provide title"})
     data.title=data.title.trim()
 
-    if(!data.excerpt) return res.status(400).json({status:false,msg:"please provide title"})
+    if(!data.excerpt) return res.status(400).json({status:false,msg:"please provide excerpt"})
     data.excerpt=data.excerpt.trim()
 
-    if(!data.userId) return res.status(400).json({status:false,msg:"please provide title"})
+    if(!data.userId) return res.status(400).json({status:false,msg:"please provide userId"})
     data.userId=data.userId.trim()
 
 
-    if(!data.ISBN) return res.status(400).json({status:false,msg:"please provide title"})
+    if(!data.ISBN) return res.status(400).json({status:false,msg:"please provide ISBN"})
     data.ISBN=data.ISBN.trim()
 
-    if(!data.category) return res.status(400).json({status:false,msg:"please provide title"})
+    if(!data.category) return res.status(400).json({status:false,msg:"please provide category"})
     data.category=data.category.trim()
 
-    if(!data.subCategory) return res.status(400).json({status:false,msg:"please provide title"})
-    data.subCategory=data.subCategory.trim()
+    if(!data.subcategory) return res.status(400).json({status:false,msg:"please provide subcatogory"})
+    data.subcategory=data.subcategory.trim()
 
 
     // Duplicacy check

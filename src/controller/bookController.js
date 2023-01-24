@@ -164,20 +164,7 @@ const updateBook=async function(req,res){
 
 
 
-const deletereview=async function(req,res){
-    let data = req.params
-    let{bookId,reviewId}=data
-    if(!isValidObjectId(bookId)) return res.status(400).send({msg:"Invalid bookId"})
 
-    if(!isValidObjectId(reviewId)) return res.status(400).send({msg:"Invalid reviewId"})
-
-    let checkbookId=await bookModel.findOne({_id:bookId,isDeleted:false})
-    if(!checkbookId) return res.status(404).send({status:false,msg:"data already delete or bookid not exist"})
-
-    let checkreviewId=await reviewmodel.findOne({_id:reviewId,isDeleted:false})
-    if(!checkreviewId) return res.status(404).send({status:false,msg:"data already delete or reviewid not exist"})
-
-}
 
 
 module.exports={createBooks,getbooks,getBOOksBYQuery,updateBook}

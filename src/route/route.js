@@ -10,6 +10,7 @@ router.post("/books",middleware.authentication,middleware.authorization,bookCont
 router.get("/books",middleware.authentication,bookController.getBOOksBYQuery);
 router.get("/books/:bookId",middleware.authentication,middleware.authorization,bookController.getbooks);
 router.post("/login",userController.loginuser);
+router.put("/books/:bookId")
 
 router.put("/books/:bookId",middleware.authentication,middleware.authorization,bookController.updateBook)
 

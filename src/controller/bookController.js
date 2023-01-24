@@ -162,11 +162,26 @@ const updateBook=async function(req,res){
     return res.status(200).send({status:true,data:update})
 }
 
+const deletedbyId=async function(res,req){
+    try{
+      let bookId=req.param.bookId;
+     if(!isValidObjectId(bookId)) return res.status(400).send({msg:"Invalid bookId"})
+     let deletedbybookid= await bookModel.findOneAndUpdate({_id:bookId, isDeleted:false},{isDeleted:true,DeletedAt:Date.now()},{new:true})
+     if(!deletedbybookid) 
+     return res.status(404).send({status:false,msg:"no book document found"})
+ 
+     res.status(200).send({status:true,data:deletedbybookid})
+ }catch(error){
+     res.status(500).send({status:false,error:error.message})
+ }
+ 
+ }
 
 
 
 
 
-module.exports={createBooks,getbooks,getBOOksBYQuery,updateBook}
+
+module.exports={createBooks,getbooks,getBOOksBYQuery,updateBook,deletedbyId}
 
     

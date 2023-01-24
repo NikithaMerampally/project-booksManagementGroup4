@@ -1,5 +1,5 @@
 // ## GET /books/:bookId
-
+let moment=require("moment")
 const { isValidObjectId, default: mongoose } = require("mongoose");
 const bookModel = require("../models/books");
 const createBooks=async (req,res)=>{
@@ -18,6 +18,7 @@ const createBooks=async (req,res)=>{
 
 
     if(!data.ISBN) return res.status(400).json({status:false,msg:"please provide ISBN"})
+      
     data.ISBN=data.ISBN.trim()
 
     if(!data.category) return res.status(400).json({status:false,msg:"please provide category"})
@@ -26,14 +27,19 @@ const createBooks=async (req,res)=>{
     if(!data.subcategory) return res.status(400).json({status:false,msg:"please provide subcatogory"})
     data.subcategory=data.subcategory.trim()
 
+    //----------validating ISBN----------------------
+    let regexForIsbn=/^(?=(?:\D*\d){10}(?:(?:\D*\d){3})?$)[\d-]+$/
+    if (! regexForIsbn.test(data.ISBN)) {
+    return res.status(400).send({status:false,msg:`The ISBN ${data.ISBN} is Not valid.`});
+    } 
 
     // Duplicacy check
     let checkTitle=await bookModel.findOne({title:data.title})
     if(checkTitle) return res.status(400).send({status:false,msg:"Book with this title already exist"})
-
+    
     let checkISBN=await bookModel.findOne({ISBN:data.ISBN})
     if(checkISBN)  return res.status(400).send({status:false,msg:"Book with this ISBN already exist"})
-
+    
 
     let createbook=await bookModel.create(data)
     return res.status(201).send({status:true,data:createbook})
@@ -116,6 +122,8 @@ const updateBook=async function(req,res){
     let title=data.title
     let excerpt=data.excerpt
     let releasedAt=data.releasedAt
+
+    
     let ISBN=data.ISBN
     ///------------checking types of  all the feilds--------------
     if(title){
@@ -128,11 +136,7 @@ const updateBook=async function(req,res){
             return res.status(400).send({msg:"please Enter excerpt in a string format"})
         }
     }
-    if(releasedAt){
-        if(typeof(releasedAt) != "object"){
-            return res.status(400).send({msg:"please Enter date in a date format"})
-        }
-    }
+    
     if(ISBN){
         if(typeof(ISBN) !="string"){
             return res.status(400).send({msg:"please Enter ISBN in a string format"})
@@ -153,10 +157,11 @@ const updateBook=async function(req,res){
             return res.status(400).send({status:false,msg:"Book with this ISBN already exists"})
         }
     }
-   let updatedDate=Date.now()
+    
+   //let formattedDate=moment().format("YYYY, MM, DD");
    let update=await bookModel.findOneAndUpdate(
     {_id:bookId,isDeleted:false},
-    {title:title,ISBN:ISBN,excerpt:excerpt,releasedAt:updatedDate},
+    {title:title,ISBN:ISBN,excerpt:excerpt,releasedAt:releasedAt},
     {new:true})
 
     return res.status(200).send({status:true,data:update})
@@ -179,9 +184,6 @@ const deletedbyId=async function(req,res){
  }
  
  }
-
-
-
 
 
 

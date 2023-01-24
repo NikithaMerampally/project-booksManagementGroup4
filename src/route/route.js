@@ -6,7 +6,7 @@ const reviewController=require("../controller/reviewController")
 const middleware=require("../middleware/middleware")
 
 router.post("/register",userController.createUser);
-router.post("/books",middleware.authentication,middleware.authorization,bookController.createBooks);
+router.post("/books",middleware.authentication,bookController.createBooks);
 router.get("/books",middleware.authentication,bookController.getBOOksBYQuery);
 router.get("/books/:bookId",middleware.authentication,middleware.authorization,bookController.getbooks);
 router.post("/login",userController.loginuser);

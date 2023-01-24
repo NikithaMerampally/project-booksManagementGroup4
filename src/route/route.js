@@ -13,6 +13,6 @@ router.get("/books/:bookId",middleware.authentication,middleware.authorization,b
 router.post("/login",userController.loginuser);
 router.put("/books/:bookId",middleware.authentication,middleware.authorization,bookController.updateBook)
 router.delete("/books/:bookId",middleware.authentication,middleware.authorization,bookController.deletedbyId)
-router.post("/books/:bookId/review",reviewController.createReveiw)
+router.post("/books/:bookId/review",middleware.authentication,reviewController.createReveiw)
 
 module.exports = router;

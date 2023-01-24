@@ -18,36 +18,37 @@ const createReveiw = async (req, res) => {
     {
         return res.status(400).json({ status: false, msg: "please provide bookId" });
     }
-    if (!data.rating) {
-        return res
-            .status(400)
-            .json({ status: false, msg: "please provide rating" });
+
+    console.log(data.rating)
+    if(data.rating===0) return res.status(400).send({status:false,msg:"rating should be greater than 0"})
+    if (data.rating==null) {
+        return res.status(400).json({ status: false, msg: "please provide rating" });
+    }
+    
+    if(!(data.rating>0 && data.rating<6)){
+        return res.status(400).send({status:false,msg:"rating should be from 0 to 5"})
+
     }
      let checkBookId=await bookModel.findById(bookId)
-      if(!checkBookId) return res.status(400).json({status:false,msg:"bookId not found"})
 
+      if(!checkBookId) return res.status(400).json({status:false,msg:"bookId not found"})
+    //--------------updating reviews key count in book--------------
+    
+    let update=await bookModel.findOneAndUpdate(
+        {_id:bookId},{$inc: {reviews:1},})
 
     data.reviewedAt = Date.now();
 
     const reveiw = await reviewModel.create(data);
-let obj={
-    _id:reveiw._id,
-    bookId:reveiw.bookId,
-    reviewedBy: reveiw.reviewedBy,
-    reviewedAt: reveiw.reviewedAt,
-    rating: reveiw.rating,
-    review: reveiw.review
-
-
-}
-
-
-
-    if(!reveiw)
-    {
-        return res.status(400).json({ status: false, msg: "no book found with this bookId" });
-
-    }
+    let obj={
+        _id:reveiw._id,
+        bookId:reveiw.bookId,
+        reviewedBy: reveiw.reviewedBy,
+        reviewedAt: reveiw.reviewedAt,
+        rating: reveiw.rating,
+        review: reveiw.review
+    
+   }
     res.status(201).json({
         status: true,
         msg: "created successfully",

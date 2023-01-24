@@ -1,6 +1,7 @@
 // ## GET /books/:bookId
 const { isValidObjectId, default: mongoose } = require("mongoose");
 const bookModel = require("../models/books");
+const reviewModel=require("../models/review")
 const createBooks=async (req,res)=>{
     try{
 
@@ -31,7 +32,9 @@ const createBooks=async (req,res)=>{
     if (! regexForIsbn.test(data.ISBN)) {
     return res.status(400).send({status:false,msg:`The ISBN ${data.ISBN} is Not valid.`});
     } 
-
+    //---------------validating title--------------------------
+    let regextitle=/^[a-zA-Z]{4,}(?: [a-zA-Z]+){0,2}$/
+    if(!regextitle.test(data.title)) return res.status(400).send({status:false,msg:"Title should have alphabets also"})
     // Duplicacy check
     let checkTitle=await bookModel.findOne({title:data.title})
     if(checkTitle) return res.status(400).send({status:false,msg:"Book with this title already exist"})
@@ -39,6 +42,11 @@ const createBooks=async (req,res)=>{
     let checkISBN=await bookModel.findOne({ISBN:data.ISBN})
     if(checkISBN)  return res.status(400).send({status:false,msg:"Book with this ISBN already exist"})
     
+     //------------------authorization----------------------------------
+    let userId=data.userId;
+    let tokenId=req.decodedToken.userId
+    if(userId!=tokenId) return res.status(403).send({status:false,msg:"Not authorized"})
+
 
     let createbook=await bookModel.create(data)
     return res.status(201).send({status:true,data:createbook})
@@ -57,9 +65,32 @@ const getbooks = async (req, res) => {
         if (!mongoose.Types.ObjectId.isValid(bookId)) {
             return res.status(400).json({status: false,msg: "bookID is invalid enter valid id"});
         }
-        const book = await bookModel.findById(bookId);
+        let book = await bookModel.findById(bookId);
         if(!book) return res.status(200).json({status: false,msg: "bookID does not exist"});
-        return res.status(200).json({ status: true, data: book });
+        let  review=await reviewModel.find({bookId:bookId})
+        
+        
+        let finalData={
+            _id:book._id,
+            title:book.title,
+            excerpt:book.excerpt,
+            userId:book.userId,
+            ISBN:book.ISBN,
+            category:book.category,
+            subcategory:book.subcategory,
+            reviews:book.reviews,
+            isDeleted:book.isDeleted,
+            releasedAt:book.releasedAt,
+            createdAt:book.createdAt,
+            updatedAt:book.updatedAt,
+            reviewsData:review,
+            
+            
+        }
+            
+        console.log(book)
+        return res.status(200).json({ status: true, data: finalData});
+
     } catch (error) {
         res.status(500).json({ status: false, msg: error });
     }

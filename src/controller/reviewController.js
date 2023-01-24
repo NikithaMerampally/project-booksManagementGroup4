@@ -31,12 +31,12 @@ const createReveiw = async (req, res) => {
 
     const reveiw = await reviewModel.create(data);
 let obj={
-    _id:review._id,
+    _id:reveiw._id,
     bookId:reveiw.bookId,
     reviewedBy: reveiw.reviewedBy,
     reviewedAt: reveiw.reviewedAt,
     rating: reveiw.rating,
-    review: review.review
+    review: reveiw.review
 
 
 }

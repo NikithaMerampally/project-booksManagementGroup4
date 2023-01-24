@@ -79,10 +79,9 @@ const loginuser= async function(req,res){
     if (!validator.isEmail(email))
     return res.status(400).send({ status: false, msg: "please provide valid email" });
 
-    
     let userdata= await userModel.findOne({email:email,password:password})
     if(!userdata) return res.status(401).send({status:false,msg:"invalid login"})
-    let token = jwt.sign({userId:userdata._id.toString(),emailId:userdata.email},"group4californium")
+    let token = jwt.sign({userId:userdata._id.toString(),emailId:userdata.email},"group4californium",{expiresIn:"1h"})
     res.setHeader("x-api-key",token)
     res.status(200).send({status:true,msg:"Token is generated",data:token})
     }catch(error){

@@ -35,10 +35,6 @@ const createBooks=async (req,res)=>{
     if(checkISBN)  return res.status(400).send({status:false,msg:"Book with this ISBN already exist"})
 
 
-    
-
-
-
     let createbook=await bookModel.create(data)
     return res.status(201).send({status:true,data:createbook})
     }
@@ -47,10 +43,7 @@ const createBooks=async (req,res)=>{
         return res.status(500).send({status:false,msg:error.message})
     }
 
-
-
 }
-
 
 
 const getbooks = async (req, res) => {
@@ -84,6 +77,7 @@ const getBOOksBYQuery=async function(req,res){
     }
     
     let book=await bookModel.find({isDeleted:false,...data}).select({ISBN:0,deletedAt:0,isDeleted:0,createdAt:0,updatedAt:0}).sort({title:1})
+    
     if(book.length==0) return res.status(404).send({status:false,msg:"books are not found"})
     const userIdofToken=req.decodedToken.userId
     
@@ -98,10 +92,77 @@ const getBOOksBYQuery=async function(req,res){
     }catch (err) {
     res.status(500).send({ status: false, msg: err.message });
     }
+}
+
+
+//---------------------updating books---------------------------------
+const updateBook=async function(req,res){
+    let bookId=req.params.bookId
+    let data=req.body
+    if(Object.keys(data).length==0){
+        return res.status(400).send({status:false,msg:"provide data in body to update"})
+
     }
 
-    module.exports={createBooks,getbooks,getBOOksBYQuery}
+    if(!isValidObjectId(bookId)){
+        return res.status(400).send({msg:"Invalid bookId"})
+    }
+    let checkBook=await bookModel.findOne({_id:bookId})
+    if(!checkBook){
+        return res.status(400).send({msg:"This book does not exist"})
+    }
+
+    
+    let title=data.title
+    let excerpt=data.excerpt
+    let releasedAt=data.releasedAt
+    let ISBN=data.ISBN
+    ///------------checking types of  all the feilds--------------
+    if(title){
+        if(typeof(title)!="string"){
+            return res.status(400).send({msg:"please Enter title in a string format"})
+        }
+    }
+    if(excerpt){
+        if(typeof (excerpt) != "string"){
+            return res.status(400).send({msg:"please Enter excerpt in a string format"})
+        }
+    }
+    if(releasedAt){
+        if(typeof(releasedAt) != "object"){
+            return res.status(400).send({msg:"please Enter date in a date format"})
+        }
+    }
+    if(ISBN){
+        if(typeof(ISBN) !="string"){
+            return res.status(400).send({msg:"please Enter ISBN in a string format"})
+        }
+    }
+
+    //-----------checking whether the title and ISBN is alreday present or not---------
+    if(title){
+        let booksData=await bookModel.findOne({title:title})
+        if(booksData){
+            return res.status(400).send({status:false,msg:"Book with this title already exists"})
+        }
+    }
+    
+    if(ISBN){
+        let ISBNdata=await bookModel.findOne({ISBN:ISBN})
+        if(ISBNdata){
+            return res.status(400).send({status:false,msg:"Book with this ISBN already exists"})
+        }
+    }
+   let updatedDate=Date.now()
+   let update=await bookModel.findOneAndUpdate(
+    {_id:bookId,isDeleted:false},
+    {title:title,ISBN:ISBN,excerpt:excerpt,releasedAt:updatedDate},
+    {new:true})
+
+    return res.status(200).send({status:true,data:update})
+}
 
 
+module.exports={createBooks,getbooks,getBOOksBYQuery,updateBook}
 
-
+    

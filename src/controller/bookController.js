@@ -33,8 +33,8 @@ const createBooks=async (req,res)=>{
     // if(!data.releasedAt) {
     //     data.releasedAt=Date.now()
     // }
-   data.releasedAt=moment().format("YYYY-MM-DD")
    
+   if((moment(data.releasedAt).format("YYYY-MM-DD"))!=data.releasedAt) return res.status(400).send({status:false,msg:"Enter date in YYYY-MM-DD"})
    console.log(data.releasedAt)
     //----------validating ISBN----------------------
     let regexForIsbn=/^(?=(?:\D*\d){10}(?:(?:\D*\d){3})?$)[\d-]+$/
@@ -180,6 +180,10 @@ const updateBook=async function(req,res){
             return res.status(400).send({msg:"please Enter ISBN in a string format"})
         }
     }
+    //------------validating relleasedAt key--------------------
+    if(releasedAt){
+    if((moment(releasedAt).format("YYYY-MM-DD"))!=releasedAt) return res.status(400).send({status:false,msg:"Enter date in YYYY-MM-DD"})
+    }
 
     //-----------checking whether the title and ISBN is alreday present or not---------
     if(title){
@@ -196,7 +200,7 @@ const updateBook=async function(req,res){
         }
     }
     
-    releasedAt=moment().format("YYYY, MM, DD");
+
    let update=await bookModel.findOneAndUpdate(
     {_id:bookId,isDeleted:false},
     {title:title,ISBN:ISBN,excerpt:excerpt,releasedAt:releasedAt},

@@ -53,6 +53,11 @@ const createReveiw = async (req, res) => {
 let updateReview=async function(req,res){
     let bookId=req.params.bookId
     let reviewId=req.params.reviewId
+    if (!mongoose.Types.ObjectId.isValid(bookId)) {
+        return res.status(400).json({ status: false, msg: "book id is invalid" });
+    }
+    if (!mongoose.Types.ObjectId.isValid(reviewId)) {
+        return res.status(400).json({ status: false, msg: "review id is invalid" })}
 
     //-------validating reviewId-------------------
     let bookdata=await bookModel.findOne({_id:bookId,isDeleted:false})
@@ -73,21 +78,45 @@ let updateReview=async function(req,res){
         if(Number(rating)===0) return res.status(400).send({status:false,msg:"rating should be greater than 0"})
         if(!(data.rating>0 && data.rating<6)){
             return res.status(400).send({status:false,msg:"rating should be from 0 to 5"})
-    
-        }
+         }
     
     if(reviewedBy){
         if(validator.isNumeric(reviewedBy)) return res.status(400).send({status:false,message:"Enter a valid name"})
-    }
-
-
+    } 
     let update=await reviewModel.findOneAndUpdate({_id:reviewId},{review:review,rating:rating,reviewedBy:reviewedBy},{new:true})
-    return res.status(200).send({status:true,message:"success",data:update})
+    return res.status(200).send({status:true,message:"success",data:bookdata,update})
 
  
 
 }
 
+const deleteReview = async (req, res) => {
+    let bookId = req.params.bookId;
+    let reviewId = req.params.reviewId;
+    if (!mongoose.Types.ObjectId.isValid(bookId)) {
+        return res.status(400).json({ status: false, msg: "book id is invalid" });
+    }
+    if (!mongoose.Types.ObjectId.isValid(reviewId)) {
+        return res.status(400).json({ status: false, msg: "review id is invalid" })}
+    const book = await bookModel.findById({ _id: bookId });
+    if (!book) {
+        res.status(404).json({ status: false, msg: "book id not found" });
+    }
+    const review = await reviewModel.findById({ _id: reviewId });
+    if (!review) {
+        res.status(404).json({ status: false, msg: "review id not found" });
+    }
+    let update = await bookModel.findOneAndUpdate(
+        { _id: bookId },
+        { $inc: { reviews: -1 } },
+        { new: true }
+    );
+    res.status(200).json({
+        status: true,
+        msg: "deleted successfully",
+        data: update,
+   });
+};
 
 
 
@@ -96,7 +125,8 @@ let updateReview=async function(req,res){
 
 
 
-module.exports={createReveiw,updateReview}
+
+module.exports={createReveiw,updateReview,deleteReview}
 
 
 

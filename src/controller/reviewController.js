@@ -82,7 +82,7 @@ let updateReview=async function(req,res){
 
 
     let update=await reviewModel.findOneAndUpdate({_id:reviewId},{review:review,rating:rating,reviewedBy:reviewedBy},{new:true})
-    return res.status(200).send({status:false,message:"success",data:update})
+    return res.status(200).send({status:true,message:"success",data:update})
 
  
 

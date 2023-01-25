@@ -2,13 +2,16 @@
 const { isValidObjectId, default: mongoose } = require("mongoose");
 const bookModel = require("../models/books");
 const reviewModel=require("../models/review")
+const validator=require("validator")
+const moment=require("moment")
 const createBooks=async (req,res)=>{
     try{
 
     let data=req.body
 
     if(!data.title) return res.status(400).json({status:false,msg:"please provide title"})
-    data.title=data.title.trim()
+    data.title=data.title.toLowerCase().trim()
+
 
     if(!data.excerpt) return res.status(400).json({status:false,msg:"please provide excerpt"})
     data.excerpt=data.excerpt.trim()
@@ -27,14 +30,19 @@ const createBooks=async (req,res)=>{
     if(!data.subcategory) return res.status(400).json({status:false,msg:"please provide subcatogory"})
     data.subcategory=data.subcategory.trim()
 
+    // if(!data.releasedAt) {
+    //     data.releasedAt=Date.now()
+    // }
+   data.releasedAt=moment().format("YYYY-MM-DD")
+   
+   console.log(data.releasedAt)
     //----------validating ISBN----------------------
     let regexForIsbn=/^(?=(?:\D*\d){10}(?:(?:\D*\d){3})?$)[\d-]+$/
     if (! regexForIsbn.test(data.ISBN)) {
     return res.status(400).send({status:false,msg:`The ISBN ${data.ISBN} is Not valid.`});
     } 
     //---------------validating title--------------------------
-    let regextitle=/^[a-zA-Z]{4,}(?: [a-zA-Z]+){0,2}$/
-    if(!regextitle.test(data.title)) return res.status(400).send({status:false,msg:"Title should have alphabets also"})
+    if(validator.isNumeric(data.title)) return res.status(400).send({status:false,msg:"Book title cannot be numbers only"})
     // Duplicacy check
     let checkTitle=await bookModel.findOne({title:data.title})
     if(checkTitle) return res.status(400).send({status:false,msg:"Book with this title already exist"})
@@ -188,7 +196,7 @@ const updateBook=async function(req,res){
         }
     }
     
-   //let formattedDate=moment().format("YYYY, MM, DD");
+    releasedAt=moment().format("YYYY, MM, DD");
    let update=await bookModel.findOneAndUpdate(
     {_id:bookId,isDeleted:false},
     {title:title,ISBN:ISBN,excerpt:excerpt,releasedAt:releasedAt},

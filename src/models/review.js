@@ -1,6 +1,6 @@
 const mongoose=require('mongoose')
 const reviewSchema=new mongoose.Schema({
-    bookId: {type:mongoose.Schema.Types.ObjectId,required:true , ref:"books"},
+  bookId: {type:mongoose.Schema.Types.ObjectId,required:true , ref:"books"},
   reviewedBy: {type:String, required:true, default: 'Guest'},
   reviewedAt: {type:Date, required:true},
   rating: {type:Number, required:true},

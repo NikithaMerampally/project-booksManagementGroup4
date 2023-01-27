@@ -16,7 +16,7 @@ const createReveiw = async (req, res) => {
     }
     let data = req.body;
     
-    console.log(data.rating)
+   
     if(data.rating===0) return res.status(400).send({status:false,msg:"rating should be greater than 0"})
     if (data.rating==null) {
         return res.status(400).json({ status: false, msg: "please provide rating" });
@@ -25,20 +25,36 @@ const createReveiw = async (req, res) => {
     if(!(data.rating>0 && data.rating<6)){
         return res.status(400).send({status:false,msg:"rating should be from 0 to 5"})
 
+
+    }
+
+    // reviewedBy can only have characters
+    if(data.reviewedBy=="")
+    {
+        delete data['reviewedBy']
+    }
+    if(data.reviewedBy)
+    {
+     
+        if(!validator.isAlpha(data.reviewedBy,'en-US',{ignore:' '}))   return res.status(400).send({status:false,msg:"please provide valid reviewedBy"})
+        data.reviewedBy=data.reviewedBy.trim()
     }
      let checkBookId=await bookModel.findById(bookId)
 
       if(!checkBookId) return res.status(400).json({status:false,msg:"bookId not found"})
+//// set bookId from params inside data object----------------------- added here
+data.bookId=bookId
+
     //--------------updating reviews key count in book--------------
     
     let update=await bookModel.findOneAndUpdate(
-        {_id:bookId},{$inc: {reviews:1},new:true})
+        {_id:bookId},{$inc: {reviews:1}},{new:true}) // new true was not working because it was set inside $inc block now its working
 
     data.reviewedAt = Date.now();
     const reveiw = await reviewModel.create(data);
     let obj={
         book:update,
-        review:{_id:reveiw._id,
+        reviews:{_id:reveiw._id,
         bookId:reveiw.bookId,
         reviewedBy: reveiw.reviewedBy,
         reviewedAt: reveiw.reviewedAt,
@@ -79,10 +95,11 @@ let updateReview=async function(req,res){
         if(!(data.rating>0 && data.rating<6)){
             return res.status(400).send({status:false,msg:"rating should be from 0 to 5"})
          }
-    
-    if(reviewedBy){
-        if(validator.isNumeric(reviewedBy)) return res.status(400).send({status:false,message:"Enter a valid name"})
-    } 
+         if(data.reviewedBy){
+           
+         if(!validator.isAlpha(data.reviewedBy,'en-US',{ignore:' '}))   return res.status(400).send({status:false,msg:"name must have alphabets only"})
+         data.reviewedBy=data.reviewedBy.trim()
+         }
     let update=await reviewModel.findOneAndUpdate({_id:reviewId},{review:review,rating:rating,reviewedBy:reviewedBy},{new:true})
     return res.status(200).send({status:true,message:"success",data:bookdata,update})
 
@@ -106,15 +123,19 @@ const deleteReview = async (req, res) => {
     if (!review) {
         res.status(404).json({ status: false, msg: "review id not found" });
     }
+      
+
     let update = await bookModel.findOneAndUpdate(
         { _id: bookId },
         { $inc: { reviews: -1 } },
         { new: true }
     );
+  let deleteReview=await reviewModel.findOneAndUpdate({_id:reviewId},{isDeleted:true})
+
     res.status(200).json({
         status: true,
-        msg: "deleted successfully",
-        data: update,
+        msg: "deleted successfully"
+        
    });
 };
 

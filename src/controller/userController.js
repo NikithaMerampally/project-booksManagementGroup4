@@ -13,11 +13,13 @@ let createUser = async (req, res) => {
     if (!["Mr", "Mrs", "Miss"].includes(data.title))
         return res.status(400).send({ status: false, msg: "title must be MR,MRS,MISS" });
 
-    if (!data.name) {
-        return res.status(400).send({ status: false, msg: "please provide name" });
-    }
-    if (!validator.isAlpha(data.name,'en-US',{ignore:" "}))
-        return res.status(400).send({ status: false, msg: "please provide valid name" });
+    if (!data.name) return res.status(400).send({ status: false, msg: "please provide name" });
+    
+        // name length discuss with group
+        // more then 2 less then 20
+    
+    if (!validator.isAlpha(data.name,'en-US',{ignore:" "})) return res.status(400).send({ status: false, msg: "please provide valid name" });
+       data.name=data.name.trim()//--------------------------------------
 
 if (!data.phone) {
     return res.status(400).send({ status: false, msg: "please provide phone" });
@@ -36,7 +38,7 @@ if (!validator.isEmail(data.email))
 
 if (!data.password)
     return res.status(400).send({ status: false, msg: "please provide password" });
-        console.log(data.password,data.password.length)
+        
 if (( data.password.length>=8&&data.password.length<= 15)) {
     if (!validator.isStrongPassword(data.password)) {
         return res.status(400).send({ status: false, msg: "please provide strong password" });
@@ -44,14 +46,83 @@ if (( data.password.length>=8&&data.password.length<= 15)) {
 } else {
     return res.status(400).send({ status: false, msg: "password must be of length 8-15" });
 }
-// Duplicacy
-let checkEmail = await userModel.findOne({ email: data.email });
-if (checkEmail)return res.status(400).send({ status: false, msg: "email is already in use" });
-data.email=data.email.toLowerCase()
+data.password=data.password.trim()//------------------------------
+// address format
 
-let checkPhone = await userModel.findOne({ phone: data.phone });
-if (checkPhone)
-    return res.status(400).send({ status: false, msg: "Phone is already in use" });
+// console.log(typeof data.address.street)
+// if(data.address.street=="")
+// {
+//     delete data.address["street"]
+// }
+console.log(typeof data.address)
+if(typeof data.address!="undefined"){
+ if(data.address.street||data.address.street=="")
+{
+    data.address.street=data.address.street.trim()
+    if(data.address.street=="")
+    {
+        // return res.status(400).send({status:false,message:"street field cannot be empty if provided"})
+        delete data.address["street"]
+    }
+}
+if(data.address.city||data.address.city=="")
+{
+    data.address.city=data.address.city.trim()
+    if(data.address.city=="")
+    {
+        
+        delete data.address["city"]
+    }
+}
+if(data.address.pincode||data.address.pincode=="")
+{
+   
+    data.address.pincode=data.address.pincode.trim()
+    if(data.address.pincode=="")
+    {
+      
+        delete data.address["pincode"]
+        
+    }
+     else if(!validator.isNumeric(data.address.pincode)||data.address.pincode.length!=6)
+     {
+        return res.status(400).send({status:false,message:"make sure pincode should be numeric only and 6 digit number"})
+     }
+
+}
+}
+
+
+
+///////////////////////////////////////////
+
+
+// Duplicacy
+// let checkEmail = await userModel.findOne({ email: data.email });
+// if (checkEmail)return res.status(400).send({ status: false, msg: "email is already in use" });
+// data.email=data.email.toLowerCase()
+
+// let checkPhone = await userModel.findOne({ phone: data.phone });
+// if (checkPhone)
+//     return res.status(400).send({ status: false, msg: "Phone is already in use" });
+
+// db optimized
+
+data.email=data.email.toLowerCase()
+let checkDuplicate=await userModel.find({$or:[{email: data.email},{phone: data.phone}]})
+
+if(checkDuplicate.length>=1)
+{
+    if(data.email.toLowerCase()==checkDuplicate[0].email)
+    {
+        return res.status(400).send({ status: false, msg: "email is already in use" })
+    }
+    else{
+        return res.status(400).send({ status: false, msg: "Phone is already in use" });
+    }
+}
+
+
 
 let user = await userModel.create(data);
 
@@ -78,9 +149,18 @@ const loginuser= async function(req,res){
 
     if (!validator.isEmail(email))
     return res.status(400).send({ status: false, msg: "please provide valid email" });
+    // to minimise db call we can verify it here that password is strong or not because during user creation it is accepting only strong password
+    if(!validator.isStrongPassword(password)) return res.status(401).send({status:false,msg:"incorrect password "})
 
-    let userdata= await userModel.findOne({email:email,password:password})
-    if(!userdata) return res.status(401).send({status:false,msg:"invalid login"})
+    let userdata= await userModel.findOne({email:email}) // removed password directly
+    if(!userdata) return res.status(401).send({status:false,msg:"no user found with this email"})//-----------------------
+    // for proper message to the user
+    if(userdata){
+        if(password!=userdata.password)
+        {
+            return res.status(401).send({status:false,msg:"incorrect password"})
+        }
+    }
     let token = jwt.sign({userId:userdata._id.toString(),emailId:userdata.email},"group4californium",{expiresIn:"1h"})
     res.setHeader("x-api-key",token)
     res.status(200).send({status:true,msg:"Token is generated",data:token})

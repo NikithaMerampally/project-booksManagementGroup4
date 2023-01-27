@@ -47,13 +47,7 @@ if (( data.password.length>=8&&data.password.length<= 15)) {
     return res.status(400).send({ status: false, msg: "password must be of length 8-15" });
 }
 data.password=data.password.trim()//------------------------------
-// address format
 
-// console.log(typeof data.address.street)
-// if(data.address.street=="")
-// {
-//     delete data.address["street"]
-// }
 console.log(typeof data.address)
 if(typeof data.address!="undefined"){
  if(data.address.street||data.address.street=="")
@@ -92,22 +86,6 @@ if(data.address.pincode||data.address.pincode=="")
 }
 }
 
-
-
-///////////////////////////////////////////
-
-
-// Duplicacy
-// let checkEmail = await userModel.findOne({ email: data.email });
-// if (checkEmail)return res.status(400).send({ status: false, msg: "email is already in use" });
-// data.email=data.email.toLowerCase()
-
-// let checkPhone = await userModel.findOne({ phone: data.phone });
-// if (checkPhone)
-//     return res.status(400).send({ status: false, msg: "Phone is already in use" });
-
-// db optimized
-
 data.email=data.email.toLowerCase()
 let checkDuplicate=await userModel.find({$or:[{email: data.email},{phone: data.phone}]})
 
@@ -121,7 +99,6 @@ if(checkDuplicate.length>=1)
         return res.status(400).send({ status: false, msg: "Phone is already in use" });
     }
 }
-
 
 
 let user = await userModel.create(data);
@@ -146,14 +123,14 @@ const loginuser= async function(req,res){
 
     if (!password) 
     return res.status(400).send({ status: false, msg: "please provide password" });
-
+    
+    email=email.trim()
     if (!validator.isEmail(email))
     return res.status(400).send({ status: false, msg: "please provide valid email" });
-    // to minimise db call we can verify it here that password is strong or not because during user creation it is accepting only strong password
-    if(!validator.isStrongPassword(password)) return res.status(401).send({status:false,msg:"incorrect password "})
-
+    
+    
     let userdata= await userModel.findOne({email:email}) // removed password directly
-    if(!userdata) return res.status(401).send({status:false,msg:"no user found with this email"})//-----------------------
+    if(!userdata) return res.status(404).send({status:false,msg:"no user found with this email"})//-----------------------
     // for proper message to the user
     if(userdata){
         if(password!=userdata.password)
@@ -161,7 +138,7 @@ const loginuser= async function(req,res){
             return res.status(401).send({status:false,msg:"incorrect password"})
         }
     }
-    let token = jwt.sign({userId:userdata._id.toString(),emailId:userdata.email},"group4californium",{expiresIn:"1h"})
+    let token = jwt.sign({userId:userdata._id.toString(),emailId:userdata.email},"group4californium",{expiresIn:"2h"})
     res.setHeader("x-api-key",token)
     res.status(200).send({status:true,msg:"Token is generated",data:token})
     }catch(error){

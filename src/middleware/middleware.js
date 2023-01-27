@@ -11,15 +11,13 @@ let authentication=function(req,res,next){
     }
     let verifiedToken=jwt.verify(headers,"group4californium",(error,token)=>{
         if(error){
-            res.status(400).send({msg:"authentication failed!!! please check your token or it is expired"})// only message changed reason of error could be invalid token or token expired
+            res.status(401).send({msg:error.message})// only message changed reason of error could be invalid token or token expired
         }
+       
         return token 
     })
-
+   
     
-    if(!verifiedToken){
-        res.status(400).send({status:false,msg:"Invalid Token"})
-    }
     
     req.decodedToken=verifiedToken;
     

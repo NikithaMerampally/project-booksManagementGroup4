@@ -1,4 +1,5 @@
 const express = require("express");
+const app=express()
 const router = express.Router();
 const bookController=require("../controller/bookController")
 const userController=require("../controller/userController")
@@ -17,4 +18,14 @@ router.post("/books/:bookId/review",reviewController.createReveiw)
 router.put("/books/:bookId/review/:reviewId",reviewController.updateReview)
 router.delete("/books/:bookId/review/:reviewId",reviewController.deleteReview);
 
+
+router.all("/*",function(req,res){
+    res.send({msg:"please Enter a correct URL"})
+    
+})
+
 module.exports = router;
+
+
+
+

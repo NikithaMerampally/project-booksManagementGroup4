@@ -31,7 +31,7 @@ if (!/^(\+91[\-\s]?)?[0]?(91)?[789]\d{9}$/.test(data.phone)) {
 }
 
 if (!data.email)
-    return res.status(400).send({ status: false, msg: "please provide email" });
+    return res.status(400).send({ status: false, msg: "please provide email" });//validate this
 
 if (!validator.isEmail(data.email))
     return res.status(400).send({ status: false, msg: "please provide valid email" });

@@ -11,4 +11,10 @@ app.listen(3000,()=>{
     console.log("app is running on port 3000")
 })
 
-
+app.use((err, req, res, next) => {
+    if (err.message === "Unexpected end of JSON input") {
+      return res.status(400).send({status: false, message: "ERROR Parsing Data, Please Provide a Valid JSON",});
+    } else {
+      next()
+    }
+  })

@@ -274,4 +274,3 @@ const deletedbyId=async function(req,res){
 
 module.exports={createBooks,getbooks,getBOOksBYQuery,updateBook,deletedbyId}
 
-    

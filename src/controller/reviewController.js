@@ -5,6 +5,7 @@ const validator=require("validator")
 
 
 const createReveiw = async (req, res) => {
+    try{
     let bookId = req.params.bookId;
     if (!bookId) {
        return res.status(400).json({ status: false, meassage: "please provide bookID" });
@@ -63,10 +64,17 @@ const createReveiw = async (req, res) => {
     }
     return  res.status(201).json({status: true,msg: "success",data: obj});
 }
+catch(error)
+{
+    return res.status(500).send({status:false,error:error.message})
+
+}
+}
 
 //--------------------------update review api----------------------------------------------------------------
 
 let updateReview=async function(req,res){
+    try{
     let bookId=req.params.bookId
     let reviewId=req.params.reviewId
     //-----------------validating bookid and review id---------------------------------------------------
@@ -119,9 +127,16 @@ let updateReview=async function(req,res){
     
     let update=await reviewModel.findOneAndUpdate({_id:reviewId},object,{new:true})
     return res.status(200).send({status:true,message:"success",data:bookdata,update})
+    }
+    catch(error)
+    {
+    return res.status(500).send({status:false,error:error.message})
+
+    }
 }
 
 const deleteReview = async (req, res) => {
+    try{
     let bookId = req.params.bookId;
     let reviewId = req.params.reviewId;
     //-------------validating bookId and review Id----------------------------------------------------
@@ -148,6 +163,12 @@ const deleteReview = async (req, res) => {
 
 //---------------updating the review count in bookModel--------------------------------------
    let update = await bookModel.findOneAndUpdate({ _id: bookId },{ $inc: { reviews: -1 } },{ new: true });
+}
+catch(error)
+{
+    return res.status(500).send({status:false,error:error.message})
+
+}
 };
 
 

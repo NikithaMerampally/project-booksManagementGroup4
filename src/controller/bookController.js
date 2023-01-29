@@ -177,6 +177,7 @@ const getbooks = async (req, res) => {
 
 //---------------------updating books---------------------------------
 const updateBook=async function(req,res){
+    try{
     let bookId=req.params.bookId
     let data=req.body
     if(Object.keys(data).length==0){
@@ -257,6 +258,11 @@ let update=await bookModel.findOneAndUpdate(
 
     return res.status(200).send({status:true,data:update})
 }
+catch(error)
+{
+    return res.status(500).send({status:false,error:error.message})
+}
+}
 
 const deletedbyId=async function(req,res){
     try{
@@ -267,8 +273,7 @@ const deletedbyId=async function(req,res){
     }
     //---------------if want the book data then do newtrue----------------------
      let deletedbybookid= await bookModel.findOneAndUpdate({_id:bookId, isDeleted:false},{isDeleted:true,DeletedAt:Date.now()})
-     if(!deletedbybookid) 
-     return res.status(404).send({status:false,msg:"no book document found"})
+     if(!deletedbybookid) return res.status(404).send({status:false,msg:"no book document found"})
  
     return res.status(200).send({status:true,message:"Deleted successfully"})
  }catch(error){

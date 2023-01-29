@@ -142,6 +142,7 @@ const loginuser= async function(req,res){
     res.setHeader("x-api-key",token)
     res.status(200).send({status:true,msg:"Token is generated",data:token})
     }catch(error){
+        
        res.status(500).send({status:false,error:error.message})
 }
 }

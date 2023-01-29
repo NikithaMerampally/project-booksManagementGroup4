@@ -192,61 +192,68 @@ const updateBook=async function(req,res){
         return res.status(404).send({msg:"book does not exists with thid Id"})
     }
 
+    let obj={}
     
-    let title=data.title
-    let excerpt=data.excerpt
-    let releasedAt=data.releasedAt
-
-    
-    let ISBN=data.ISBN
     ///------------checking types of  all the feilds--------------
-    if(title){
-        if(typeof(title)!="string"){
+    if(data.title){
+        
+        if(typeof(data.title)!="string"){
             return res.status(400).send({msg:"please Enter title in a string format"})
         }
+        data.title=data.title.trim()
 
-        if(validator.isNumeric(title)) return res.status(400).send({status:false,msg:"Book title cannot be numbers only"})
-
+        if(validator.isNumeric(data.title)) return res.status(400).send({status:false,msg:"Book title cannot be numbers only"})
+         
     }
     
-    if(excerpt || excerpt===""){
-        if(typeof (excerpt) != "string"){
-            return res.status(400).send({msg:"please Enter excerpt in a string format"})
+    if(data.excerpt){
+        if(typeof (data.excerpt) != "string"){
+            return res.status(400).send({msg:"please Enter data.excerpt in a string format"})
         }
-        excerpt=excerpt.trim()
-        if(excerpt==="") return res.status(400).send({status:false,msg:"please provide content in excerpt"})
+        data.excerpt=data.excerpt.trim()
+        if(data.excerpt!="") obj.excerpt=data.excerpt  
     }
     
-    if(ISBN){
-        if(typeof(ISBN) !="string"){
+    if(data.ISBN){
+        data.ISBN=data.ISBN.trim()
+        if(typeof(data.ISBN) !="string"){
             return res.status(400).send({msg:"please Enter ISBN in a string format"})
         }
+        let regexForIsbn=/^(?=(?:\D*\d){10}(?:(?:\D*\d){3})?$)[\d-]+$/
+        if (! regexForIsbn.test(data.ISBN)) {
+        return res.status(400).send({status:false,msg:`The ISBN ${data.ISBN} is Not valid.`});
+        } 
     }
     //------------validating relleasedAt key--------------------
-    if(releasedAt){
-    if((moment(releasedAt).format("YYYY-MM-DD"))!=releasedAt) return res.status(400).send({status:false,msg:"Enter date in YYYY-MM-DD"})
+    if(data.releasedAt){
+    if((moment(data.releasedAt).format("YYYY-MM-DD"))!=data.releasedAt) return res.status(400).send({status:false,msg:"Enter date in YYYY-MM-DD"})
+    obj.releasedAt=data.releasedAt
     }
 
     //-----------checking whether the title and ISBN is alreday present or not---------
-    if(title){
-        let booksData=await bookModel.findOne({title:title})
+    if(data.title){
+        let booksData=await bookModel.findOne({title:data.title})
         if(booksData){
             return res.status(400).send({status:false,msg:"Book with this title already exists"})
         }
+
+         obj.title=data.title
+
     }
     
-    if(ISBN){
-        let ISBNdata=await bookModel.findOne({ISBN:ISBN})
+    if(data.ISBN){
+        let ISBNdata=await bookModel.findOne({ISBN:data.ISBN})
         if(ISBNdata){
             return res.status(400).send({status:false,msg:"Book with this ISBN already exists"})
         }
+        obj.ISBN=data.ISBN
+
     }
     
 
-   let update=await bookModel.findOneAndUpdate(
+let update=await bookModel.findOneAndUpdate(
     {_id:bookId,isDeleted:false},
-    {title:title,ISBN:ISBN,excerpt:excerpt,releasedAt:releasedAt},
-    {new:true})
+    obj,{new:true})
 
     return res.status(200).send({status:true,data:update})
 }

@@ -7,11 +7,11 @@ let authentication=function(req,res,next){
     try{
     let headers=req.headers["x-api-key"]
     if(!headers){
-        res.status(400).send({status:false,msg:"header is required"})
+       return res.status(400).send({status:false,msg:"header is required"})
     }
     let verifiedToken=jwt.verify(headers,"group4californium",(error,token)=>{
         if(error){
-            res.status(401).send({msg:error.message})// only message changed reason of error could be invalid token or token expired
+           return res.status(401).send({msg:error.message})// only message changed reason of error could be invalid token or token expired
         }
        
         return token 

@@ -138,7 +138,7 @@ const loginuser= async function(req,res){
             return res.status(401).send({status:false,msg:"incorrect password"})
         }
     }
-    let token = jwt.sign({userId:userdata._id.toString(),emailId:userdata.email},"group4californium",{expiresIn:"1m"})
+    let token = jwt.sign({userId:userdata._id.toString(),emailId:userdata.email},"group4californium",{expiresIn:"1h"})
      res.setHeader("x-api-key",token)
    return  res.status(200).send({status:true,msg:"Token is generated",data:token})
     }catch(error){

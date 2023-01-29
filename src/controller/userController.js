@@ -48,7 +48,7 @@ if (( data.password.length>=8&&data.password.length<= 15)) {
 }
 data.password=data.password.trim()//------------------------------
 
-console.log(typeof data.address)
+
 if(typeof data.address!="undefined"){
  if(data.address.street||data.address.street=="")
 {

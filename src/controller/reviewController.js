@@ -53,7 +53,7 @@ const createReveiw = async (req, res) => {
     const reveiw = await reviewModel.create(data);
     let obj={
         book:update,
-        reviews:{_id:reveiw._id,
+        reviewsData:{_id:reveiw._id,
         bookId:reveiw.bookId,
         reviewedBy: reveiw.reviewedBy,
         reviewedAt: reveiw.reviewedAt,
@@ -123,10 +123,31 @@ let updateReview=async function(req,res){
                 }   
              }
         }
+         if(Object.keys(object).length==0) return res.status(500).send({status:false,message:"please provide something to update"})
+        
+        
          
     
     let update=await reviewModel.findOneAndUpdate({_id:reviewId},object,{new:true})
-    return res.status(200).send({status:true,message:"success",data:bookdata,update})
+
+    let finalData={
+        _id:bookdata._id,
+        title:bookdata.title,
+        excerpt:bookdata.excerpt,
+        userId:bookdata.userId,
+        ISBN:bookdata.ISBN,
+        category:bookdata.category,
+        subcategory:bookdata.subcategory,
+        reviews:bookdata.reviews,
+        isDeleted:bookdata.isDeleted,
+        releasedAt:bookdata.releasedAt,
+        createdAt:bookdata.createdAt,
+        updatedAt:bookdata.updatedAt,
+        reviewsData:update
+        
+        
+    }
+    return res.status(200).send({status:true,message:"success",data:finalData})
     }
     catch(error)
     {

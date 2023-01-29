@@ -242,6 +242,7 @@ const updateBook=async function(req,res){
 
     }
     
+    
     if(data.ISBN){
         let ISBNdata=await bookModel.findOne({ISBN:data.ISBN})
         if(ISBNdata){
@@ -250,6 +251,8 @@ const updateBook=async function(req,res){
         obj.ISBN=data.ISBN
 
     }
+    // to check in the end user has passed something or not  after ignoring spaces 
+    if(Object.keys(obj).length==0) return res.status(400).send({status:false,msg:"please provide something to update"})
     
 
 let update=await bookModel.findOneAndUpdate(
@@ -276,7 +279,7 @@ const deletedbyId=async function(req,res){
      if(!deletedbybookid) return res.status(404).send({status:false,msg:"no book document found"})
  
     return res.status(200).send({status:true,message:"Deleted successfully"})
- }catch(error){
+      }catch(error){
     return res.status(500).send({status:false,error:error.message})
  }
  

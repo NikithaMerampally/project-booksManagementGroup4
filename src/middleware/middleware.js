@@ -15,7 +15,8 @@ let authentication=function(req,res,next){
             return res.status(401).send({msg:error.message})// only message changed reason of error could be invalid token or token expired
            
         }
-      else{
+      else
+      {
         req.decodedToken=token;
         // return token
         next()

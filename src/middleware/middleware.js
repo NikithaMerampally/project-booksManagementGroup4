@@ -11,19 +11,21 @@ let authentication=function(req,res,next){
     }
     let verifiedToken=jwt.verify(headers,"group4californium",(error,token)=>{
         if(error){
-           return res.status(401).send({msg:error.message})// only message changed reason of error could be invalid token or token expired
+            
+            return res.status(401).send({msg:error.message})// only message changed reason of error could be invalid token or token expired
+           
         }
-       
-        return token 
-    })
-   
+      else{
+        req.decodedToken=token;
+        // return token
+        next()
+      }
+        })
     
     
-    req.decodedToken=verifiedToken;
+    // req.decodedToken=verifiedToken;
     
-    next()
-
-    }catch(error){
+ }catch(error){
         return res.status(500).send({status:true,msg:error.message})
 }
 }

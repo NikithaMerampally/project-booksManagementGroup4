@@ -8,7 +8,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/iamalfi/book-managemant.git"
+    "url": "https://github.com/NikithaMerampally/project-booksManagementGroup4.git"
+  },
+  "engines": {
+    "npm": ">=8.0.0 <9.0.0",
+    "node": ">=16.0.0 <17.0.0"
   },
   "author": "",
   "license": "ISC",
@@ -17,6 +21,7 @@
   },
   "homepage": "https://github.com/iamalfi/book-managemant#readme",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.0",
     "moment": "^2.29.4",

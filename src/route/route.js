@@ -18,7 +18,6 @@ router.post("/books/:bookId/review",reviewController.createReveiw)
 router.put("/books/:bookId/review/:reviewId",reviewController.updateReview)
 router.delete("/books/:bookId/review/:reviewId",reviewController.deleteReview);
 
-
 router.all("/*",function(req,res){
     res.send({msg:"please Enter a correct URL"})
     

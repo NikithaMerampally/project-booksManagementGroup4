@@ -87,7 +87,7 @@ let updateReview=async function(req,res){
     //--------------------checking existence of bookId and review Id------------------------------------
     let bookdata=await bookModel.findOne({_id:bookId,isDeleted:false})
     if(!bookdata) return res.status(404).send({staus:false,message:"This book does not exists"})
-    let reviewsData=await reviewModel.findOne({_id:reviewId})
+    let reviewsData=await reviewModel.findOne({_id:reviewId,isDeleted:false})
     if(!reviewsData) return res.status(404).send({staus:false,message:"This reviewId does not found"})
     console.log(bookdata._id.toString())
     console.log(reviewsData.bookId.toString())
@@ -127,7 +127,6 @@ let updateReview=async function(req,res){
         
         
          
-    
     let update=await reviewModel.findOneAndUpdate({_id:reviewId},object,{new:true})
 
     let finalData={
@@ -168,19 +167,19 @@ const deleteReview = async (req, res) => {
         return res.status(400).json({ status: false, msg: "review id is invalid" })}
 
     //------------------checking the existence of bookId and review Id-----------------------------------    
-    const book = await bookModel.findById({ _id: bookId });
+    const book = await bookModel.findOne({ _id: bookId,isDeleted:false});
     if (!book) {
-        res.status(404).json({ status: false, msg: "book id not found" });
+       return res.status(404).json({ status: false, msg: "book id not found" });
     }
-    const review = await reviewModel.findById({ _id: reviewId });
+    const review = await reviewModel.findOne({ _id: reviewId,isDeleted:false});
     if (!review) {
-        res.status(404).json({ status: false, msg: "review id not found" });
+       return res.status(404).json({ status: false, msg: "review id not found" });
     }
       
    //----------------finally deleting the review  ------------------------------------------------------
     
-  let deleteReview=await reviewModel.findOneAndUpdate({_id:reviewId},{isDeleted:true})
-    res.status(200).json({status: true,message: "deleted successfully"});
+  let deleteReview=await reviewModel.findOneAndUpdate({_id:reviewId,isDeleted:false},{isDeleted:true})
+    return res.status(200).json({status: true,message: "deleted successfully"});
 
 //---------------updating the review count in bookModel--------------------------------------
    let update = await bookModel.findOneAndUpdate({ _id: bookId },{ $inc: { reviews: -1 } },{ new: true });
@@ -191,9 +190,6 @@ catch(error)
 
 }
 };
-
-
-
 
 
 module.exports={createReveiw,updateReview,deleteReview}

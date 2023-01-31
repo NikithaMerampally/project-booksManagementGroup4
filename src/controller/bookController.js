@@ -4,10 +4,14 @@ const bookModel = require("../models/books");
 const reviewModel=require("../models/review")
 const validator=require("validator")
 const moment=require("moment")
+const aws=require('../aws/cover aws');
+const uploadFile=require("../aws/cover aws")
+
+
 const createBooks=async (req,res)=>{
     try{
-
     let data=req.body
+    console.log(req.body)
 //-----------------------validating user id key  -------------------------------
 if(!data.userId) return res.status(400).json({status:false,msg:"please provide userId"})
 data.userId=data.userId.trim()
@@ -19,6 +23,8 @@ let userId=data.userId;
 let tokenId=req.decodedToken.userId
 if(userId!=tokenId) return res.status(403).send({status:false,msg:"Not authorized"})
 
+let object={}
+
     //---------------checking mandatory keys are provided or not--------------------
     if(!data.title) return res.status(400).json({status:false,msg:"please provide title"})
     data.title=data.title.toLowerCase().trim() 
@@ -27,23 +33,26 @@ if(userId!=tokenId) return res.status(403).send({status:false,msg:"Not authorize
     if(data.excerpt==="") return res.status(400).send({status:false,msg:"please provide content in excerpt"})
     if(!data.userId) return res.status(400).json({status:false,msg:"please provide userId"})
     data.userId=data.userId.trim()
-
-
+    object.userId=data.userId
     if(!data.ISBN) return res.status(400).json({status:false,msg:"please provide ISBN"})
       
     data.ISBN=data.ISBN.trim()
 
     if(!data.category) return res.status(400).json({status:false,msg:"please provide category"})
     data.category=data.category.trim()
+    object.category=data.category
 
     if(!data.subcategory) return res.status(400).json({status:false,msg:"please provide subcatogory"})
     data.subcategory=data.subcategory.trim()
+    object.subcategory=data.subcategory
+    
 
     
     //----------------------validating format of relseaed at key-------------------------------------
     if(!data.releasedAt) return res.status(400).send({status:false,message:"releasedAt is a mendatory field"})
    
    if((moment(data.releasedAt).format("YYYY-MM-DD"))!=data.releasedAt) return res.status(400).send({status:false,msg:"Enter date in YYYY-MM-DD"})
+   object.releasedAt=data.releasedAt
    
     
     //-----------------------------validating ISBN----------------------
@@ -54,17 +63,18 @@ if(userId!=tokenId) return res.status(403).send({status:false,msg:"Not authorize
     //---------------validating title excerpt category subcategory--------------------------
     
     if(validator.isNumeric(data.title)) return res.status(400).send({status:false,msg:"Book title cannot be numbers only"})
-
+     object.title=data.title
     if(validator.isNumeric(data.excerpt)) return res.status(400).send({status:false,msg:"Book excerpt cannot be numbers only"})
-    if(!validator.isAlpha(data.category,'en-US',{ignore:"-' "})) return res.status(400).send({status:false,msg:"Book categories should be have alphabets only you can use (-,')"})
-
+    object.excerpt=data.excerpt
     if(!validator.isAlpha(data.subcategory,'en-US',{ignore:"-', "})) return res.status(400).send({status:false,msg:"Book subcategory should be string only you can use (-,')"})
+    object.subcategory=data.subcategory
 
     //-----------------checking duplicay of title and ISBN----------------------------------------------------
     let checkDuplicate=await bookModel.find({$or:[{title:data.title},{ISBN:data.ISBN}]})
+    console.log(data.title)
     if(checkDuplicate.length>=1)
     {   
-            if(data.title==checkDuplicate[0].title)
+            if(data.title.toLowerCase()==checkDuplicate[0].title)
             {
                 return res.status(400).send({status:false,msg:"Book with this title already exist"})
 
@@ -74,9 +84,14 @@ if(userId!=tokenId) return res.status(403).send({status:false,msg:"Not authorize
             }
              
     }
+    object.title=data.title;
+    object.ISBN=data.ISBN;
+    
+    //-------------------------- file---------------------
+    if(req.body.cover || req.body.cover.trim()!="") object.cover=req.body.cover
 
     //-------------------------finally creating the book-----------------------------------------
-    let createbook=await bookModel.create(data)
+    let createbook=await bookModel.create(object)
     let obj={
             _id:createbook._id,
             title:createbook.title,
@@ -87,9 +102,11 @@ if(userId!=tokenId) return res.status(403).send({status:false,msg:"Not authorize
             subcategory:createbook.subcategory,
             isDeleted:createbook.isDeleted,
             reviews:createbook.reviews,
+            bookcover:createbook.cover,
             releasedAt:createbook.releasedAt,
             createdAt:createbook.createdAt,
             updatedAt:createbook.updatedAt
+
 
     }
 
@@ -98,9 +115,10 @@ if(userId!=tokenId) return res.status(403).send({status:false,msg:"Not authorize
     catch(error)
     {
         return res.status(500).send({status:false,msg:error.message})
-    }
+}
 
 }
+
 
 //-----------getting books by query-------------------------------------------------------------
 const getBOOksBYQuery=async function(req,res){
@@ -118,8 +136,7 @@ const getBOOksBYQuery=async function(req,res){
         }
 
     }
-    // __v added to ignore in response and message
-    // confusion in subcatogory part we have to remove or not
+    
     
     let book=await bookModel.find({isDeleted:false,...data}).select({ISBN:0,deletedAt:0,isDeleted:0,createdAt:0,updatedAt:0,__v:0}).sort({title:1})
     
@@ -131,6 +148,28 @@ const getBOOksBYQuery=async function(req,res){
     res.status(500).send({ status: false, msg: err.message });
     }
 }
+//let daata=req.query
+//if(object.keys(data).length===0){
+    //let book=await bookModel.find({isDeleted:false}).select({isbn:0,deleeteda})
+    //return res.status(200).send({status:true,msg:book})
+   //else{
+    //if(data.userId){
+        //if(!isValidObjectId) return res.status(400).send({msg:""})
+
+    //}
+    //let booksdata=await bookModel.find({isDeleted:true,...daata})
+    //return res.status(200).send({status:true,data:booksdata})
+   //} 
+
+//}
+
+//let getbooks=async function(req,res){
+    //let bookId=req.params.bookId
+    //
+
+//}
+
+
 
 
 const getbooks = async (req, res) => {
@@ -143,7 +182,6 @@ const getbooks = async (req, res) => {
         let book = await bookModel.findOne({_id:bookId,isDeleted:false});
         if(!book) return res.status(404).json({status: false,msg: "book does not exists with thid Id"});
         let  review=await reviewModel.find({bookId:bookId,isDeleted:false})
-        
         
         
         let finalData={
@@ -160,8 +198,7 @@ const getbooks = async (req, res) => {
             createdAt:book.createdAt,
             updatedAt:book.updatedAt,
             reviewsData:review,
-            
-            
+               
         }
             
         
@@ -188,7 +225,7 @@ const updateBook=async function(req,res){
     if(!isValidObjectId(bookId)){
         return res.status(400).send({msg:"Invalid bookId"})
     }
-    let checkBook=await bookModel.findOne({_id:bookId})
+    let checkBook=await bookModel.findOne({_id:bookId,isDeleted:false})
     if(!checkBook){
         return res.status(404).send({msg:"book does not exists with thid Id"})
     }
@@ -288,4 +325,6 @@ const deletedbyId=async function(req,res){
 
 
 module.exports={createBooks,getbooks,getBOOksBYQuery,updateBook,deletedbyId}
+
+
 

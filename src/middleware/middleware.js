@@ -40,7 +40,7 @@ let authorization=async function(req,res,next){
     if(!isValidObjectId(bookId)) return res.status(400).send({status:false,msg:"Invalid bookId"})
     let book=await bookModel.findOne({_id:bookId})
     if(!book){
-        return res.status(400).send({status:false,msg:"No books found with this bookId"})
+        return res.status(404).send({status:false,msg:"No books found with this bookId"})
     }
     let userId=book["userId"].toString()
     console.log(userId)

@@ -2,6 +2,12 @@ const userModel = require("../models/user");
 const validator = require("validator");
 const jwt = require("jsonwebtoken")
 
+const validateEmail = function(email) {
+    var re = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,6}\b/;
+    return re.test(email)
+};
+
+let object={}
 let createUser = async (req, res) => {
     try{
     let data = req.body;
@@ -12,6 +18,7 @@ let createUser = async (req, res) => {
     }
     if (!["Mr", "Mrs", "Miss"].includes(data.title))
         return res.status(400).send({ status: false, msg: "title must be MR,MRS,MISS" });
+        object.title=data.title
 
     if (!data.name) return res.status(400).send({ status: false, msg: "please provide name" });
     
@@ -20,6 +27,7 @@ let createUser = async (req, res) => {
     
     if (!validator.isAlpha(data.name,'en-US',{ignore:" "})) return res.status(400).send({ status: false, msg: "please provide valid name" });
        data.name=data.name.trim()//--------------------------------------
+       object.name=data.name
 
 if (!data.phone) {
     return res.status(400).send({ status: false, msg: "please provide phone" });
@@ -32,8 +40,10 @@ if (!/^(\+91[\-\s]?)?[0]?(91)?[789]\d{9}$/.test(data.phone)) {
 
 if (!data.email)
     return res.status(400).send({ status: false, msg: "please provide email" });//validate this
+    data.email=data.email.trim()
+    if(data.email=="") return res.status(400).send({status:false,msg:"please provide email"})
 
-if (!validator.isEmail(data.email))
+if (!validateEmail(data.email))
     return res.status(400).send({ status: false, msg: "please provide valid email" });
 
 if (!data.password)
@@ -46,17 +56,23 @@ if (( data.password.length>=8&&data.password.length<= 15)) {
 } else {
     return res.status(400).send({ status: false, msg: "password must be of length 8-15" });
 }
-data.password=data.password.trim()//------------------------------
+data.password=data.password.trim()
+object.password=data.password//------------------------------
 
+if(typeof data.address !=Object || data.address.trim()==""){
+    return res.status(400).send({status:false,msg:"adress must be an object "})
 
-if(typeof data.address!="undefined"){
+}
+if(typeof data.address!="undefined" ){
  if(data.address.street||data.address.street=="")
 {
     data.address.street=data.address.street.trim()
-    if(data.address.street=="")
+    if(data.address.street!="")
     {
         // return res.status(400).send({status:false,message:"street field cannot be empty if provided"})
-        delete data.address["street"]
+        //delete data.address["street"]
+        object.address.street=data.address.street
+        
     }
 }
 if(data.address.city||data.address.city=="")
@@ -65,7 +81,7 @@ if(data.address.city||data.address.city=="")
     if(data.address.city=="")
     {
         
-        delete data.address["city"]
+        object.address.city=data.address.city
     }
 }
 if(data.address.pincode||data.address.pincode=="")
@@ -75,13 +91,16 @@ if(data.address.pincode||data.address.pincode=="")
     if(data.address.pincode=="")
     {
       
-        delete data.address["pincode"]
+        // delete data.address["pincode"]
+        
         
     }
      else if(!validator.isNumeric(data.address.pincode)||data.address.pincode.length!=6)
      {
         return res.status(400).send({status:false,message:"make sure pincode should be numeric only and 6 digit number"})
      }
+
+     object.address.pincode=data.address.pincode
 
 }
 }
@@ -99,14 +118,20 @@ if(checkDuplicate.length>=1)
         return res.status(400).send({ status: false, msg: "Phone is already in use" });
     }
 }
+object.email=data.email
+object.phone=data.phone
+object.title=data.title
 
 
-let user = await userModel.create(data);
+
+let user = await userModel.create(object);
 
 res.status(201).send({ status: true, data: user });
     }
-    catch(err)
-    {return res.send(err.message)}
+    catch(err){
+        return res.status(500).send(err.message)
+    }
+   
 }
 
 

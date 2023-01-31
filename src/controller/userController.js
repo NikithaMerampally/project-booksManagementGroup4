@@ -38,12 +38,14 @@ if (!/^(\+91[\-\s]?)?[0]?(91)?[789]\d{9}$/.test(data.phone)) {
     return res.status(400).send({ status: false, message: "Enter valid phone number" });
 }
 
-if (!data.email)
-    return res.status(400).send({ status: false, msg: "please provide email" });//validate this
+if (!data.email) return res.status(400).send({ status: false, msg: "please provide email" });//validate this
+
+
     data.email=data.email.trim()
+
     if(data.email=="") return res.status(400).send({status:false,msg:"please provide email"})
 
-if (!validateEmail(data.email))
+if (!validator.isEmail(data.email))
     return res.status(400).send({ status: false, msg: "please provide valid email" });
 
 if (!data.password)
@@ -59,51 +61,48 @@ if (( data.password.length>=8&&data.password.length<= 15)) {
 data.password=data.password.trim()
 object.password=data.password//------------------------------
 
-if(typeof data.address !=Object || data.address.trim()==""){
+if(typeof data.address !='object' ){
     return res.status(400).send({status:false,msg:"adress must be an object "})
 
 }
-if(typeof data.address!="undefined" ){
- if(data.address.street||data.address.street=="")
-{
-    data.address.street=data.address.street.trim()
-    if(data.address.street!="")
-    {
-        // return res.status(400).send({status:false,message:"street field cannot be empty if provided"})
-        //delete data.address["street"]
-        object.address.street=data.address.street
-        
-    }
-}
-if(data.address.city||data.address.city=="")
-{
-    data.address.city=data.address.city.trim()
-    if(data.address.city=="")
-    {
-        
-        object.address.city=data.address.city
-    }
-}
-if(data.address.pincode||data.address.pincode=="")
-{
-   
-    data.address.pincode=data.address.pincode.trim()
-    if(data.address.pincode=="")
-    {
+console.log(typeof data.address)
+if(typeof data.address!="undefined"){
+    if(data.address.street||data.address.street=="")
+   {
+       data.address.street=data.address.street.trim()
+       if(data.address.street=="")
+       {
+           // return res.status(400).send({status:false,message:"street field cannot be empty if provided"})
+           delete data.address["street"]
+       }
+   }
+   if(data.address.city||data.address.city=="")
+   {
+       data.address.city=data.address.city.trim()
+       if(data.address.city=="")
+       {
+           
+           delete data.address["city"]
+       }
+   }
+   if(data.address.pincode||data.address.pincode=="")
+   {
       
-        // delete data.address["pincode"]
-        
-        
-    }
-     else if(!validator.isNumeric(data.address.pincode)||data.address.pincode.length!=6)
-     {
-        return res.status(400).send({status:false,message:"make sure pincode should be numeric only and 6 digit number"})
-     }
-
-     object.address.pincode=data.address.pincode
-
-}
-}
+       data.address.pincode=data.address.pincode.trim()
+       if(data.address.pincode=="")
+       {
+         
+           delete data.address["pincode"]
+           
+       }
+        else if(!validator.isNumeric(data.address.pincode)||data.address.pincode.length!=6)
+        {
+           return res.status(400).send({status:false,message:"make sure pincode should be numeric only and 6 digit number"})
+        }
+   
+   }
+   object.address=data.address
+   }
 
 data.email=data.email.toLowerCase()
 let checkDuplicate=await userModel.find({$or:[{email: data.email},{phone: data.phone}]})
@@ -129,7 +128,7 @@ let user = await userModel.create(object);
 res.status(201).send({ status: true, data: user });
     }
     catch(err){
-        return res.status(500).send(err.message)
+        return res.status(500).send({status:false,message:err.message})
     }
    
 }

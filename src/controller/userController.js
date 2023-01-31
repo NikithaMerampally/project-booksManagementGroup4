@@ -2,13 +2,14 @@ const userModel = require("../models/user");
 const validator = require("validator");
 const jwt = require("jsonwebtoken")
 
-const validateEmail = function(email) {
-    var re = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,6}\b/;
-    return re.test(email)
-};
+// const validateEmail = function(email) {
+//     var re = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,6}\b/;
+//     return re.test(email)
+// };
 
-let object={}
+
 let createUser = async (req, res) => {
+    let object={}
     try{
     let data = req.body;
     if (Object.keys(data).length == 0)

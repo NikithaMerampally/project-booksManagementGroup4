@@ -38,7 +38,7 @@ const createReveiw = async (req, res) => {
         if(!validator.isAlpha(data.reviewedBy,'en-US',{ignore:' '}))   return res.status(400).send({status:false,msg:"please provide valid reviewedBy"})
         data.reviewedBy=data.reviewedBy.trim()
     }
-     let checkBookId=await bookModel.findById(bookId)
+     let checkBookId=await bookModel.findOne({_id:bookId,isDeleted:false})
 
       if(!checkBookId) return res.status(404).json({status:false,message:"book not found"})
    //--------------- set bookId from params inside data object----------------------- added here

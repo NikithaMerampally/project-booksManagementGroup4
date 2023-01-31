@@ -11,7 +11,7 @@ const uploadFile=require("../aws/cover aws")
 const createBooks=async (req,res)=>{
     try{
     let data=req.body
-    console.log(req.body)
+    // console.log(req.body)
 //-----------------------validating user id key  -------------------------------
 if(!data.userId) return res.status(400).json({status:false,msg:"please provide userId"})
 data.userId=data.userId.trim()
@@ -31,8 +31,8 @@ let object={}
     if(!data.excerpt) return res.status(400).json({status:false,msg:"please provide excerpt"})
     data.excerpt=data.excerpt.trim()
     if(data.excerpt==="") return res.status(400).send({status:false,msg:"please provide content in excerpt"})
-    if(!data.userId) return res.status(400).json({status:false,msg:"please provide userId"})
-    data.userId=data.userId.trim()
+    // if(!data.userId) return res.status(400).json({status:false,msg:"please provide userId"})  ///---//// already checked above
+    // data.userId=data.userId.trim()
     object.userId=data.userId
     if(!data.ISBN) return res.status(400).json({status:false,msg:"please provide ISBN"})
       
@@ -71,7 +71,7 @@ let object={}
 
     //-----------------checking duplicay of title and ISBN----------------------------------------------------
     let checkDuplicate=await bookModel.find({$or:[{title:data.title},{ISBN:data.ISBN}]})
-    console.log(data.title)
+    // console.log(data.title)
     if(checkDuplicate.length>=1)
     {   
             if(data.title.toLowerCase()==checkDuplicate[0].title)
@@ -88,7 +88,7 @@ let object={}
     object.ISBN=data.ISBN;
     
     //-------------------------- file---------------------
-    if(req.body.cover || req.body.cover.trim()!="") object.cover=req.body.cover
+    if(req.body.cover ) {if(req.body.cover.trim()!="") {object.cover=req.body.cover.trim()}}
 
     //-------------------------finally creating the book-----------------------------------------
     let createbook=await bookModel.create(object)
@@ -102,7 +102,7 @@ let object={}
             subcategory:createbook.subcategory,
             isDeleted:createbook.isDeleted,
             reviews:createbook.reviews,
-            bookcover:createbook.cover,
+            cover:createbook.cover,
             releasedAt:createbook.releasedAt,
             createdAt:createbook.createdAt,
             updatedAt:createbook.updatedAt
@@ -145,7 +145,7 @@ const getBOOksBYQuery=async function(req,res){
     return res.status(200).send({status:true,message: 'Books list',data:book})
     }
     }catch (err) {
-    res.status(500).send({ status: false, msg: err.message });
+    return res.status(500).send({ status: false, msg: err.message });
     }
 }
 //let daata=req.query
@@ -222,13 +222,13 @@ const updateBook=async function(req,res){
 
     }
 
-    if(!isValidObjectId(bookId)){
-        return res.status(400).send({msg:"Invalid bookId"})
-    }
-    let checkBook=await bookModel.findOne({_id:bookId,isDeleted:false})
-    if(!checkBook){
-        return res.status(404).send({msg:"book does not exists with thid Id"})
-    }
+    // if(!isValidObjectId(bookId)){
+    //     return res.status(400).send({msg:"Invalid bookId"}) //------------// already in authorization
+    // }
+    // let checkBook=await bookModel.findOne({_id:bookId,isDeleted:false})
+    // if(!checkBook){
+    //     return res.status(404).send({msg:"book does not exists with thid Id"})  //-------// already in authorization
+    // }
 
     let obj={}
     
@@ -307,10 +307,10 @@ catch(error)
 const deletedbyId=async function(req,res){
     try{
       let bookId=req.params.bookId;
-      console.log(bookId)
-    if(!isValidObjectId(bookId)){
-        return res.status(400).send({msg:"Invalid bookId"})
-    }
+    //   console.log(bookId)
+    // if(!isValidObjectId(bookId)){
+    //     return res.status(400).send({msg:"Invalid bookId"}) ///////----////----- already checking in authorization part
+    // }
     //---------------if want the book data then do newtrue----------------------
      let deletedbybookid= await bookModel.findOneAndUpdate({_id:bookId, isDeleted:false},{isDeleted:true,DeletedAt:Date.now()})
      if(!deletedbybookid) return res.status(404).send({status:false,msg:"no book document found"})

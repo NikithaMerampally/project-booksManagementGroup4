@@ -38,12 +38,12 @@ let authorization=async function(req,res,next){
     let tokenUser=req.decodedToken.userId
     let bookId=req.params.bookId
     if(!isValidObjectId(bookId)) return res.status(400).send({status:false,msg:"Invalid bookId"})
-    let book=await bookModel.findOne({_id:bookId})
+    let book=await bookModel.findOne({_id:bookId,isDeleted:false}) //-----// isDeleted added
     if(!book){
         return res.status(404).send({status:false,msg:"No books found with this bookId"})
     }
     let userId=book["userId"].toString()
-    console.log(userId)
+    // console.log(userId)
    
     if(userId!=tokenUser){
         return res.status(403).send({msg:"You are not authorized"})   

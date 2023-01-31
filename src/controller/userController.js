@@ -61,12 +61,15 @@ if (( data.password.length>=8&&data.password.length<= 15)) {
 data.password=data.password.trim()
 object.password=data.password//------------------------------
 
-if(typeof data.address !='object' ){
-    return res.status(400).send({status:false,msg:"adress must be an object "})
 
-}
 console.log(typeof data.address)
 if(typeof data.address!="undefined"){
+    if(typeof data.address !='object' ){
+        return res.status(400).send({status:false,msg:"adress must be an object "})
+    
+    }
+
+    
     if(data.address.street||data.address.street=="")
    {
        data.address.street=data.address.street.trim()

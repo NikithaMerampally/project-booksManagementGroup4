@@ -2,11 +2,13 @@ const userModel = require("../models/user");
 const validator = require("validator");
 const jwt = require("jsonwebtoken")
 
-// const validateEmail = function(email) {
-//     var re = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,6}\b/;
-//     return re.test(email)
-// };
+const isValidEmail = function (email) {
+    
+    let regex =/^[a-z0-9](\.?[a-z0-9]){5,}@[a-z0-9-]+(.[a-z0-9-]+)*(.[a-z]{2,4})$/
 
+    return regex.test(email)
+
+};
 
 let createUser = async (req, res) => {
     let object={}
@@ -46,7 +48,7 @@ if (!data.email) return res.status(400).send({ status: false, msg: "please provi
 
     if(data.email=="") return res.status(400).send({status:false,msg:"please provide email"})
 
-if (!validator.isEmail(data.email))
+if (!isValidEmail(data.email))
     return res.status(400).send({ status: false, msg: "please provide valid email" });
 
 if (!data.password)
@@ -153,7 +155,7 @@ const loginuser= async function(req,res){
     return res.status(400).send({ status: false, msg: "please provide password" });
     
     email=email.trim()
-    if (!validator.isEmail(email))
+    if (!isValidEmail(email))
     return res.status(400).send({ status: false, msg: "please provide valid email" });
     
     

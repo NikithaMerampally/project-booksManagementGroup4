@@ -148,27 +148,6 @@ const getBOOksBYQuery=async function(req,res){
     return res.status(500).send({ status: false, msg: err.message });
     }
 }
-//let daata=req.query
-//if(object.keys(data).length===0){
-    //let book=await bookModel.find({isDeleted:false}).select({isbn:0,deleeteda})
-    //return res.status(200).send({status:true,msg:book})
-   //else{
-    //if(data.userId){
-        //if(!isValidObjectId) return res.status(400).send({msg:""})
-
-    //}
-    //let booksdata=await bookModel.find({isDeleted:true,...daata})
-    //return res.status(200).send({status:true,data:booksdata})
-   //} 
-
-//}
-
-//let getbooks=async function(req,res){
-    //let bookId=req.params.bookId
-    //
-
-//}
-
 
 
 
@@ -222,13 +201,7 @@ const updateBook=async function(req,res){
 
     }
 
-    // if(!isValidObjectId(bookId)){
-    //     return res.status(400).send({msg:"Invalid bookId"}) //------------// already in authorization
-    // }
-    // let checkBook=await bookModel.findOne({_id:bookId,isDeleted:false})
-    // if(!checkBook){
-    //     return res.status(404).send({msg:"book does not exists with thid Id"})  //-------// already in authorization
-    // }
+    
 
     let obj={}
     

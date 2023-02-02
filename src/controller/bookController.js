@@ -13,36 +13,36 @@ const createBooks=async (req,res)=>{
     let data=req.body
     // console.log(req.body)
 //-----------------------validating user id key  -------------------------------
-if(!data.userId) return res.status(400).json({status:false,msg:"please provide userId"})
+if(!data.userId) return res.status(400).json({status:false,message:"please provide userId"})
 data.userId=data.userId.trim()
-if(!isValidObjectId(data.userId)) return res.status(400).json({status:false,msg:"please provide valid userId"})
+if(!isValidObjectId(data.userId)) return res.status(400).json({status:false,message:"please provide valid userId"})
 
 //------------------------------authorization--------------------------------------------------
 
 let userId=data.userId;
 let tokenId=req.decodedToken.userId
-if(userId!=tokenId) return res.status(403).send({status:false,msg:"Not authorized"})
+if(userId!=tokenId) return res.status(403).send({status:false,message:"Not authorized"})
 
 let object={}
 
     //---------------checking mandatory keys are provided or not--------------------
-    if(!data.title) return res.status(400).json({status:false,msg:"please provide title"})
+    if(!data.title) return res.status(400).json({status:false,message:"please provide title"})
     data.title=data.title.toLowerCase().trim() 
-    if(!data.excerpt) return res.status(400).json({status:false,msg:"please provide excerpt"})
+    if(!data.excerpt) return res.status(400).json({status:false,message:"please provide excerpt"})
     data.excerpt=data.excerpt.trim()
-    if(data.excerpt==="") return res.status(400).send({status:false,msg:"please provide content in excerpt"})
+    if(data.excerpt==="") return res.status(400).send({status:false,message:"please provide content in excerpt"})
     // if(!data.userId) return res.status(400).json({status:false,msg:"please provide userId"})  ///---//// already checked above
     // data.userId=data.userId.trim()
     object.userId=data.userId
-    if(!data.ISBN) return res.status(400).json({status:false,msg:"please provide ISBN"})
+    if(!data.ISBN) return res.status(400).json({status:false,message:"please provide ISBN"})
       
     data.ISBN=data.ISBN.trim()
 
-    if(!data.category) return res.status(400).json({status:false,msg:"please provide category"})
+    if(!data.category) return res.status(400).json({status:false,message:"please provide category"})
     data.category=data.category.trim()
     object.category=data.category
 
-    if(!data.subcategory) return res.status(400).json({status:false,msg:"please provide subcatogory"})
+    if(!data.subcategory) return res.status(400).json({status:false,message:"please provide subcatogory"})
     data.subcategory=data.subcategory.trim()
     object.subcategory=data.subcategory
     
@@ -51,23 +51,23 @@ let object={}
     //----------------------validating format of relseaed at key-------------------------------------
     if(!data.releasedAt) return res.status(400).send({status:false,message:"releasedAt is a mendatory field"})
    
-   if((moment(data.releasedAt).format("YYYY-MM-DD"))!=data.releasedAt) return res.status(400).send({status:false,msg:"Enter date in YYYY-MM-DD"})
+   if((moment(data.releasedAt).format("YYYY-MM-DD"))!=data.releasedAt) return res.status(400).send({status:false,message:"Enter date in YYYY-MM-DD"})
    object.releasedAt=data.releasedAt
    
     
     //-----------------------------validating ISBN----------------------
     let regexForIsbn=/^(?=(?:\D*\d){10}(?:(?:\D*\d){3})?$)[\d-]+$/
     if (! regexForIsbn.test(data.ISBN)) {
-    return res.status(400).send({status:false,msg:`The ISBN ${data.ISBN} is Not valid.`});
+    return res.status(400).send({status:false,message:`The ISBN ${data.ISBN} is Not valid.`});
     } 
     //---------------validating title excerpt category subcategory--------------------------
     
-    if(validator.isNumeric(data.title)) return res.status(400).send({status:false,msg:"Book title cannot be numbers only"})
-     object.title=data.title
-    if(validator.isNumeric(data.excerpt)) return res.status(400).send({status:false,msg:"Book excerpt cannot be numbers only"})
-    object.excerpt=data.excerpt
-    if(!validator.isAlpha(data.subcategory,'en-US',{ignore:"-', "})) return res.status(400).send({status:false,msg:"Book subcategory should be string only you can use (-,')"})
-    object.subcategory=data.subcategory
+    // if(validator.isNumeric(data.title)) return res.status(400).send({status:false,message:"Book title cannot be numbers only"})
+    //  object.title=data.title
+    // if(validator.isNumeric(data.excerpt)) return res.status(400).send({status:false,message:"Book excerpt cannot be numbers only"})
+    // object.excerpt=data.excerpt
+    // if(!validator.isAlpha(data.subcategory,'en-US',{ignore:"-', "})) return res.status(400).send({status:false,message:"Book subcategory should be string only you can use (-,')"})
+    // object.subcategory=data.subcategory
 
     //-----------------checking duplicay of title and ISBN----------------------------------------------------
     let checkDuplicate=await bookModel.find({$or:[{title:data.title},{ISBN:data.ISBN}]})
@@ -76,11 +76,11 @@ let object={}
     {   
             if(data.title.toLowerCase()==checkDuplicate[0].title)
             {
-                return res.status(400).send({status:false,msg:"Book with this title already exist"})
+                return res.status(400).send({status:false,message:"Book with this title already exist"})
 
             }
             else{
-                return res.status(400).send({status:false,msg:"Book with this ISBN already exist"})
+                return res.status(400).send({status:false,message:"Book with this ISBN already exist"})
             }
              
     }
@@ -110,11 +110,11 @@ let object={}
 
     }
 
-    return res.status(201).send({status:true,data:obj})
+    return res.status(201).send({status:true,message:"book created successfully",data:obj})
     }
     catch(error)
     {
-        return res.status(500).send({status:false,msg:error.message})
+        return res.status(500).send({status:false,message:error.message})
 }
 
 }
@@ -132,7 +132,7 @@ const getBOOksBYQuery=async function(req,res){
     else{
     if(data.userId){
         if(!isValidObjectId(data.userId)) {
-            return res.status(400).send({status :false , msg: "Enter A Valid userid" })
+            return res.status(400).send({status :false , message: "Enter A Valid userid" })
         }
 
     }
@@ -140,12 +140,12 @@ const getBOOksBYQuery=async function(req,res){
     
     let book=await bookModel.find({isDeleted:false,...data}).select({ISBN:0,deletedAt:0,isDeleted:0,createdAt:0,updatedAt:0,__v:0}).sort({title:1})
     
-    if(book.length==0) return res.status(404).send({status:false,msg:"no book found"})
+    if(book.length==0) return res.status(404).send({status:false,message:"no book found"})
     
     return res.status(200).send({status:true,message: 'Books list',data:book})
     }
     }catch (err) {
-    return res.status(500).send({ status: false, msg: err.message });
+    return res.status(500).send({ status: false, message: err.message });
     }
 }
 
@@ -155,11 +155,11 @@ const getbooks = async (req, res) => {
     try {
         let bookId = req.params.bookId;
         if (!mongoose.Types.ObjectId.isValid(bookId)) {
-            return res.status(400).json({status: false,msg: "bookID is invalid enter valid id"});
+            return res.status(400).json({status: false,message: "bookID is invalid enter valid id"});
         }
         // changed findById to findOne so that we can check isDeleted Key as well
         let book = await bookModel.findOne({_id:bookId,isDeleted:false});
-        if(!book) return res.status(404).json({status: false,msg: "book does not exists with thid Id"});
+        if(!book) return res.status(404).json({status: false,message: "book does not exists with thid Id"});
         let  review=await reviewModel.find({bookId:bookId,isDeleted:false})
         
         
@@ -181,10 +181,10 @@ const getbooks = async (req, res) => {
         }
             
         
-        return res.status(200).json({ status: true, data: finalData});
+        return res.status(200).json({ status: true,message:"books data", data: finalData});
 
     } catch (error) {
-        return res.status(500).json({ status: false, msg: error });
+        return res.status(500).json({ status: false, message: error.message });
     }
 };
 
@@ -197,7 +197,7 @@ const updateBook=async function(req,res){
     let bookId=req.params.bookId
     let data=req.body
     if(Object.keys(data).length==0){
-        return res.status(400).send({status:false,msg:"provide data in body to update"})
+        return res.status(400).send({status:false,message:"provide data in body to update"})
 
     }
 
@@ -209,17 +209,17 @@ const updateBook=async function(req,res){
     if(data.title){
         
         if(typeof(data.title)!="string"){
-            return res.status(400).send({msg:"please Enter title in a string format"})
+            return res.status(400).send({status:false,message:"please Enter title in a string format"})
         }
         data.title=data.title.trim()
 
-        if(validator.isNumeric(data.title)) return res.status(400).send({status:false,msg:"Book title cannot be numbers only"})
+        if(validator.isNumeric(data.title)) return res.status(400).send({status:false,message:"Book title cannot be numbers only"})
          
     }
     
     if(data.excerpt){
         if(typeof (data.excerpt) != "string"){
-            return res.status(400).send({msg:"please Enter data.excerpt in a string format"})
+            return res.status(400).send({message:"please Enter data.excerpt in a string format"})
         }
         data.excerpt=data.excerpt.trim()
         if(data.excerpt!="") obj.excerpt=data.excerpt  
@@ -228,7 +228,7 @@ const updateBook=async function(req,res){
     if(data.ISBN){
         data.ISBN=data.ISBN.trim()
         if(typeof(data.ISBN) !="string"){
-            return res.status(400).send({msg:"please Enter ISBN in a string format"})
+            return res.status(400).send({status:false,message:"please Enter ISBN in a string format"})
         }
         let regexForIsbn=/^(?=(?:\D*\d){10}(?:(?:\D*\d){3})?$)[\d-]+$/
         if (! regexForIsbn.test(data.ISBN)) {
@@ -237,7 +237,7 @@ const updateBook=async function(req,res){
     }
     //------------validating relleasedAt key--------------------
     if(data.releasedAt){
-    if((moment(data.releasedAt).format("YYYY-MM-DD"))!=data.releasedAt) return res.status(400).send({status:false,msg:"Enter date in YYYY-MM-DD"})
+    if((moment(data.releasedAt).format("YYYY-MM-DD"))!=data.releasedAt) return res.status(400).send({status:false,message:"Enter date in YYYY-MM-DD"})
     obj.releasedAt=data.releasedAt
     }
 
@@ -245,7 +245,7 @@ const updateBook=async function(req,res){
     if(data.title){
         let booksData=await bookModel.findOne({title:data.title})
         if(booksData){
-            return res.status(400).send({status:false,msg:"Book with this title already exists"})
+            return res.status(400).send({status:false,message:"Book with this title already exists"})
         }
 
          obj.title=data.title
@@ -256,24 +256,24 @@ const updateBook=async function(req,res){
     if(data.ISBN){
         let ISBNdata=await bookModel.findOne({ISBN:data.ISBN})
         if(ISBNdata){
-            return res.status(400).send({status:false,msg:"Book with this ISBN already exists"})
+            return res.status(400).send({status:false,message:"Book with this ISBN already exists"})
         }
         obj.ISBN=data.ISBN
 
     }
     // to check in the end user has passed something or not  after ignoring spaces 
-    if(Object.keys(obj).length==0) return res.status(400).send({status:false,msg:"please provide something to update"})
+    if(Object.keys(obj).length==0) return res.status(400).send({status:false,message:"please provide something to update"})
     
 
 let update=await bookModel.findOneAndUpdate(
     {_id:bookId,isDeleted:false},
     obj,{new:true})
 
-    return res.status(200).send({status:true,data:update})
+    return res.status(200).send({status:true,message:"books data updated succesfully",data:update})
 }
 catch(error)
 {
-    return res.status(500).send({status:false,error:error.message})
+    return res.status(500).send({status:false,message:error.message})
 }
 }
 
@@ -290,7 +290,7 @@ const deletedbyId=async function(req,res){
  
     return res.status(200).send({status:true,message:"Deleted successfully"})
       }catch(error){
-    return res.status(500).send({status:false,error:error.message})
+    return res.status(500).send({status:false,message:error.message})
  }
  
  }

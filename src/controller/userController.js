@@ -4,8 +4,7 @@ const jwt = require("jsonwebtoken")
 
 const isValidEmail = function (email) {
     
-    let regex =/^[a-z0-9](\.?[a-z0-9]){5,}@[a-z0-9-]+(.[a-z0-9-]+)*(.[a-z]{2,4})$/
-
+    let regex =/^[a-z0-9](\.?[a-z0-9]){1,}@[a-z0-9-]+(.[a-z0-9-]+)*(.[a-z]{2,4})$/
     return regex.test(email)
 
 };
@@ -15,25 +14,25 @@ let createUser = async (req, res) => {
     try{
     let data = req.body;
     if (Object.keys(data).length == 0)
-        return res.status(400).send({ status: false, msg: "please provide fields" });
+        return res.status(400).send({ status: false, message: "please provide fields" });
     if (!data.title) {
-        return res.status(400).send({ status: false, msg: "please provide title" });
+        return res.status(400).send({ status: false, message: "please provide title" });
     }
     if (!["Mr", "Mrs", "Miss"].includes(data.title))
-        return res.status(400).send({ status: false, msg: "title must be MR,MRS,MISS" });
+        return res.status(400).send({ status: false, message: "title must be MR,MRS,MISS" });
         object.title=data.title
 
-    if (!data.name) return res.status(400).send({ status: false, msg: "please provide name" });
+    if (!data.name) return res.status(400).send({ status: false, message: "please provide name" });
     
         // name length discuss with group
         // more then 2 less then 20
     
-    if (!validator.isAlpha(data.name,'en-US',{ignore:" "})) return res.status(400).send({ status: false, msg: "please provide valid name" });
+    if (!validator.isAlpha(data.name,'en-US',{ignore:" "})) return res.status(400).send({ status: false, message: "please provide valid name" });
        data.name=data.name.trim()//--------------------------------------
        object.name=data.name
 
 if (!data.phone) {
-    return res.status(400).send({ status: false, msg: "please provide phone" });
+    return res.status(400).send({ status: false, message: "please provide phone" });
 }
 if (!/^(\+91[\-\s]?)?[0]?(91)?[789]\d{9}$/.test(data.phone)) {
     //8880344456 918880344456  //+91 8880344456
@@ -41,25 +40,25 @@ if (!/^(\+91[\-\s]?)?[0]?(91)?[789]\d{9}$/.test(data.phone)) {
     return res.status(400).send({ status: false, message: "Enter valid phone number" });
 }
 
-if (!data.email) return res.status(400).send({ status: false, msg: "please provide email" });//validate this
+if (!data.email) return res.status(400).send({ status: false, message: "please provide email" });//validate this
 
 
     data.email=data.email.trim()
 
-    if(data.email=="") return res.status(400).send({status:false,msg:"please provide email"})
+    if(data.email=="") return res.status(400).send({status:false,message:"please provide email"})
 
 if (!isValidEmail(data.email))
-    return res.status(400).send({ status: false, msg: "please provide valid email" });
+    return res.status(400).send({ status: false, message: "please provide valid email" });
 
 if (!data.password)
-    return res.status(400).send({ status: false, msg: "please provide password" });
+    return res.status(400).send({ status: false, message: "please provide password" });
         
 if (( data.password.length>=8&&data.password.length<= 15)) {
     if (!validator.isStrongPassword(data.password)) {
-        return res.status(400).send({ status: false, msg: "please provide strong password" });
+        return res.status(400).send({ status: false, message: "please provide strong password" });
     }
 } else {
-    return res.status(400).send({ status: false, msg: "password must be of length 8-15" });
+    return res.status(400).send({ status: false, message: "password must be of length 8-15" });
 }
 data.password=data.password.trim()
 object.password=data.password//------------------------------
@@ -68,7 +67,7 @@ object.password=data.password//------------------------------
 console.log(typeof data.address)
 if(typeof data.address!="undefined"){
     if(typeof data.address !='object' ){
-        return res.status(400).send({status:false,msg:"adress must be an object "})
+        return res.status(400).send({status:false,message:"adress must be an object "})
     
     }
 
@@ -131,7 +130,7 @@ object.title=data.title
 
 let user = await userModel.create(object);
 
-res.status(201).send({ status: true, data: user });
+res.status(201).send({ status: true, message:"User created Successfully",data: user });
     }
     catch(err){
         return res.status(500).send({status:false,message:err.message})
@@ -146,26 +145,26 @@ const loginuser= async function(req,res){
         let data= req.body
     let{email,password}=data
     if (Object.keys(data).length == 0)
-    return res.status(400).send({ status: false, msg: "please provide fields" });
+    return res.status(400).send({ status: false, message: "please provide fields" });
 
     if (!email)
-    return res.status(400).send({ status: false, msg: "please provide email" });
+    return res.status(400).send({ status: false, message: "please provide email" });
 
     if (!password) 
-    return res.status(400).send({ status: false, msg: "please provide password" });
+    return res.status(400).send({ status: false, message: "please provide password" });
     
     email=email.trim()
     if (!isValidEmail(email))
-    return res.status(400).send({ status: false, msg: "please provide valid email" });
+    return res.status(400).send({ status: false, message: "please provide valid email" });
     
     
     let userdata= await userModel.findOne({email:email}) // removed password directly
-    if(!userdata) return res.status(404).send({status:false,msg:"no user found with this email"})//-----------------------
+    if(!userdata) return res.status(404).send({status:false,message:"no user found with this email"})//-----------------------
     // for proper message to the user
     if(userdata){
         if(password!=userdata.password)
         {
-            return res.status(401).send({status:false,msg:"incorrect password"})
+            return res.status(401).send({status:false,message:"incorrect password"})
         }
     }
     let token = jwt.sign({userId:userdata._id.toString(),emailId:userdata.email},"group4californium",{expiresIn:"1h"})
@@ -173,7 +172,7 @@ const loginuser= async function(req,res){
    return  res.status(200).send({status:true,msg:"Token is generated",data:token})
     }catch(error){
         
-        return res.status(500).send({status:false,error:error.message})
+        return res.status(500).send({status:false,error:error.msg})
 }
 }
 

@@ -13,17 +13,17 @@ const createReveiw = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(bookId)) {
         return res
             .status(400)
-            .json({ status: false, msg: "enter valid bookID" });
+            .json({ status: false, message: "enter valid bookID" });
     }
     let data = req.body;
     //-----------------checking whether the rating is provided between 1-5 only------------------------
-    if(data.rating===0) return res.status(400).send({status:false,msg:"rating should be greater than 0"})
+    if(data.rating===0) return res.status(400).send({status:false,message:"rating should be greater than 0"})
     if (data.rating==null) {
-        return res.status(400).json({ status: false, msg: "please provide rating" });
+        return res.status(400).json({ status: false, message: "please provide rating" });
     }
     
     if(!(data.rating>0 && data.rating<6)){
-        return res.status(400).send({status:false,msg:"rating should be from 0 to 5"})
+        return res.status(400).send({status:false,message:"rating should be from 0 to 5"})
 
     }
 
@@ -35,7 +35,7 @@ const createReveiw = async (req, res) => {
     if(data.reviewedBy)
     {
         if(data.reviewedBy.trim()==="") data.reviewedBy="Guest"
-        if(!validator.isAlpha(data.reviewedBy,'en-US',{ignore:' '}))   return res.status(400).send({status:false,msg:"please provide valid reviewedBy"})
+        if(!validator.isAlpha(data.reviewedBy,'en-US',{ignore:' '}))   return res.status(400).send({status:false,message:"please provide valid reviewedBy"})
         data.reviewedBy=data.reviewedBy.trim()
     }
      let checkBookId=await bookModel.findOne({_id:bookId,isDeleted:false})
@@ -62,7 +62,7 @@ const createReveiw = async (req, res) => {
         }
         
     }
-    return  res.status(201).json({status: true,msg: "success",data: obj});
+    return  res.status(201).json({status: true,message: "success",data: obj});
 }
 catch(error)
 {
@@ -79,10 +79,10 @@ let updateReview=async function(req,res){
     let reviewId=req.params.reviewId
     //-----------------validating bookid and review id---------------------------------------------------
     if (!mongoose.Types.ObjectId.isValid(bookId)) {
-        return res.status(400).json({ status: false, msg: "book id is invalid" });
+        return res.status(400).json({ status: false, message: "book id is invalid" });
     }
     if (!mongoose.Types.ObjectId.isValid(reviewId)) {
-        return res.status(400).json({ status: false, msg: "review id is invalid" })}
+        return res.status(400).json({ status: false, message: "review id is invalid" })}
 
     //--------------------checking existence of bookId and review Id------------------------------------
     let bookdata=await bookModel.findOne({_id:bookId,isDeleted:false})
@@ -101,7 +101,7 @@ let updateReview=async function(req,res){
     let object={}
     //---------------------checking rating key and rating should be 1-5----------------------------------------------------------------------
         if(data.rating){
-            if(Number(data.rating)===0) return res.status(400).send({status:false,msg:"rating should be greater than 0"})
+            if(Number(data.rating)===0) return res.status(400).send({status:false,message:"rating should be greater than 0"})
             if(!(data.rating>0 && data.rating<6)){
                 return res.status(400).send({status:false,msg:"rating should be from 0 to 5"})
             }
@@ -161,19 +161,19 @@ const deleteReview = async (req, res) => {
     let reviewId = req.params.reviewId;
     //-------------validating bookId and review Id----------------------------------------------------
     if (!mongoose.Types.ObjectId.isValid(bookId)) {
-        return res.status(400).json({ status: false, msg: "book id is invalid" });
+        return res.status(400).json({ status: false, message: "book id is invalid" });
     }
     if (!mongoose.Types.ObjectId.isValid(reviewId)) {
-        return res.status(400).json({ status: false, msg: "review id is invalid" })}
+        return res.status(400).json({ status: false, message: "review id is invalid" })}
 
     //------------------checking the existence of bookId and review Id-----------------------------------    
     const book = await bookModel.findOne({ _id: bookId,isDeleted:false});
     if (!book) {
-       return res.status(404).json({ status: false, msg: "book id not found" });
+       return res.status(404).json({ status: false, message: "book id not found" });
     }
     const review = await reviewModel.findOne({ _id: reviewId,isDeleted:false});
     if (!review) {
-       return res.status(404).json({ status: false, msg: "review id not found" });
+       return res.status(404).json({ status: false, message: "review id not found" });
     }
       
    //----------------finally deleting the review  ------------------------------------------------------
